@@ -1,0 +1,56 @@
+Dynamic Strongly Typed Language
+
+Errors
+ -	Force error on variables beginning with capitalized letter
+ - 	Strongly Typed ...
+ 
+ Primitive types
+ -	Int
+ - 	String
+ -  Boolean
+Basic functionality 
+ -	List
+	-	Like an array
+	-	Concatenation 
+	-	Get Elements
+	-	Modify elements
+ - 	If/Else
+ -	Loops? (goto - most simple implementation) 
+ -  function (def Method(){})	
+Additional 
+ - 	Comments ("# $string* \n"; \* $string */)
+ - ? 
+ - ?
+ 
+Pseudo Code
+ ex1.
+ - getArg
+ - array = args
+ - loop (array[a+1] = array[a],array[0]=0) 
+ - output(array)
+ 
+ ex2.
+ - getArg
+ - array1 = args
+ - loop(array1[i] + array[i] + \n)
+ - output(loop)
+ 
+ ex3 
+ - a1 b1 \n a2 b2 \n ..
+ - array = [a1,b1,...]
+ - loop(array[i] + 3*array[i+1])
+ 
+ ex4
+ - array = [a1,a2,a3,...]
+ - n = []
+	loop {
+		if(i == 0) {
+			n[i] = array[0]
+		}
+		
+		n[i] += array[i+1]
+			
+	}
+ -	Output print n[]
+ 
+ ex5

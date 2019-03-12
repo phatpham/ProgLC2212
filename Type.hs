@@ -1,4 +1,5 @@
-import ToyGrammar
+module Type where
+import Grammar
 import Control.Monad.Error
 --Data structures as defined in ToyGrammar:
 --data ToyType = TyInt | TyBool | TyFun ToyType ToyType
@@ -10,32 +11,34 @@ import Control.Monad.Error
 --           | Cl ( String ToyType Expr Environment)
 
 
-type TypeEnv = [(String,ToyType)]
+type TypeEnv = [(String,Type)]
 
-lookup1 :: String -> TypeEnv -> ToyType
+lookup1 :: String -> TypeEnv -> Type
 lookup1 x [] = error "Type not found"
 lookup1 x env | x == (fst (head env)) =  snd (head env)
               | otherwise = lookup1 x (tail env)
 			 
-addBinding :: String -> ToyType -> TypeEnv -> TypeEnv
+addBinding :: String -> Type -> TypeEnv -> TypeEnv
 addBingdin x typ [] = []
 addBinding x typ ((y,e):env) | (x,typ) == (y,e) = env 
                               | otherwise = (y,e):(addBinding x typ env)
 
-unparse1 :: ToyType -> String
+unparse1 :: Type -> String
 unparse1 (TyInt) = "type Int"
 unparse1 (TyBool) = "type Bool"
-unparse1 (TyFun ty1 ty2) = "Function"
 unparse1 _ = "Unknown"
 
-data TypeError = TypeMismatch ToyType ToyType deriving (Show,Eq)
+data TypeError = TypeMismatch Type Type 
 
-typeof :: Expr -> Either TypeError ToyType
+instance Show TypeError where
+    show (TypeMismatch a b) = "Type Mismatch: " ++ show a ++ " is not " ++ show b
+
+typeof :: Expr -> Either TypeError Type
 typeof expr = case expr of 
     TmInt x -> return TyInt
     TmTrue -> return TyBool
     TmFalse -> return TyBool
-    TmCompare e1 e2 -> do
+    TmLessThan e1 e2 -> do
         te1 <- typeof e1
         te2 <- typeof e2
         if te1 /= TyInt 
@@ -44,6 +47,16 @@ typeof expr = case expr of
             if te2 /= TyInt
             then throwError $ TypeMismatch te2 TyInt
             else return TyBool			
+    
+    TmEqualTo e1 e2 -> do
+        te1 <- typeof e1
+        te2 <- typeof e2
+        if te1 /= TyInt 
+        then throwError $ TypeMismatch te1 TyInt
+        else 
+            if te2 /= TyInt
+            then throwError $ TypeMismatch te2 TyInt
+            else return TyBool				
 		
     TmAdd e1 e2 -> do
         te1 <- typeof e1
@@ -66,14 +79,6 @@ typeof expr = case expr of
             then throwError $ TypeMismatch te2 TyInt
             else return te3
  	
-    TmLet x typ e1 e2 -> do 
-        te1 <- typeof e1
-        te2 <- typeof e2
-        if typ /= te1 
-        then return (error "Type not found")
-        else return te2
-    
-    TmLambda x typ e1 -> do 
-        te1 <- typeof e1
-        return te1
+
+
 
