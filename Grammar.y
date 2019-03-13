@@ -50,7 +50,7 @@ Exp : int                                       { TmInt $1 }
     | false                                     { TmFalse } 
     | Exp '<' Exp                               { TmLessThan $1 $3 } 
 	| Exp '==' Exp                              { TmEqualTo $1 $3 }
-	| Type var '=' Exp                          { TmAssign $2 $4}  
+	| Type var '=' Exp                          { TmAssign $1 $2 $4}  
     | Exp '+' Exp                               { TmAdd $1 $3 }
     | if Exp then Exp else Exp                  { TmIf $2 $4 $6 } 
     | '(' Exp ')'                               { $2 }
@@ -70,13 +70,13 @@ parseError (t:ts) = error ("Parse error at line:column " ++ (tokenPosn t))
 data Type = TyInt | TyBool 
    deriving (Show,Eq)
 
-type Environment = [ (String,Expr) ]
+type Environment = [ (String,Expr,Type) ]
 
 data Expr = TmInt Int | TmTrue | TmFalse | TmLessThan Expr Expr 
             | TmAdd Expr Expr | TmVar String 
             | TmIf Expr Expr Expr 
             | TmComma Expr Expr | TmList Expr
-			| TmAssign String Expr
+			| TmAssign Type String Expr
 			| TmEqualTo Expr Expr
 			| TmBreak Expr Expr
     deriving (Show,Eq)
