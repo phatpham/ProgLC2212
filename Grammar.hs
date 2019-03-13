@@ -473,7 +473,7 @@ parseError (t:ts) = error ("Parse error at line:column " ++ (tokenPosn t))
 data Type = TyInt | TyBool 
    deriving (Show,Eq)
 
-type Environment = [ (String,Expr,Type) ]
+type Environment = [ (String,Expr) ]
 
 data Expr = TmInt Int | TmTrue | TmFalse | TmLessThan Expr Expr 
             | TmAdd Expr Expr | TmVar String 
