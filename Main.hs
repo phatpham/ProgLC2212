@@ -14,7 +14,12 @@ main' = do putStrLn ("Toy Interactive Mode - enter an expression : ")
            sourceText <- getLine
            let parsedProg = parseCalc (alexScanTokens sourceText)
            putStrLn ("Parsed as " ++ (show parsedProg))
-		   
+           let typeCheck = (result (typeof (parsedProg,[])))
+           if (typeCheck == "No type error was found")
+           --Evaluate if right type
+           then putStrLn (printEval (evalLoop (parsedProg,[]))) 
+           --Print error if not valid type
+           else putStrLn (typeCheck)
 
            main'
 

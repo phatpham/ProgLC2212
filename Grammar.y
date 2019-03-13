@@ -48,6 +48,7 @@ Exp : int                                       { TmInt $1 }
     | var                                       { TmVar $1 }
     | true                                      { TmTrue }
     | false                                     { TmFalse } 
+    | Exp ';' Exp                                { TmBreak $1 $3 }
     | Exp '<' Exp                               { TmLessThan $1 $3 } 
 	| Exp '==' Exp                              { TmEqualTo $1 $3 }
 	| Type var '=' Exp                          { TmAssign $1 $2 $4}  
@@ -56,7 +57,7 @@ Exp : int                                       { TmInt $1 }
     | '(' Exp ')'                               { $2 }
 	| Exp ',' Exp								{ TmComma $1 $3 }
 	| '[' Exp ']'								{ TmList $2 }
-	| Exp ';' Exp                                { TmBreak $1 $3 }
+	
 
 Type : Bool            { TyBool } 
      | Int             { TyInt } 
@@ -70,7 +71,7 @@ parseError (t:ts) = error ("Parse error at line:column " ++ (tokenPosn t))
 data Type = TyInt | TyBool 
    deriving (Show,Eq)
 
-type Environment = [ (String,Expr,Type) ]
+type Environment = [ (String,Expr) ]
 
 data Expr = TmInt Int | TmTrue | TmFalse | TmLessThan Expr Expr 
             | TmAdd Expr Expr | TmVar String 

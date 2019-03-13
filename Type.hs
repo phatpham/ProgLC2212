@@ -13,34 +13,45 @@ import Control.Monad.Error
 
 type TypeEnv = [(String,Type)]
 
-lookup1 :: String -> TypeEnv -> Type
-lookup1 x [] = error "Type not found"
-lookup1 x env | x == (fst (head env)) =  snd (head env)
+lookup1 :: String -> TypeEnv -> Maybe Type
+lookup1 x [] = Nothing
+lookup1 x env | x == (fst (head env)) =  Just (snd (head env))
               | otherwise = lookup1 x (tail env)
 			 
 addBinding :: String -> Type -> TypeEnv -> TypeEnv
-addBingdin x typ [] = []
+addBinding x typ [] = [(x,typ)]
 addBinding x typ ((y,e):env) | (x,typ) == (y,e) = env 
-                              | otherwise = (y,e):(addBinding x typ env)
+                             | otherwise = (y,e):(addBinding x typ env)
 
+{-
 unparse1 :: Type -> String
 unparse1 (TyInt) = "type Int"
 unparse1 (TyBool) = "type Bool"
 unparse1 _ = "Unknown"
+-}
 
-data TypeError = TypeMismatch Type Type 
+data TypeError = TypeMismatch Type Type | NotFound  deriving Eq
 
 instance Show TypeError where
     show (TypeMismatch a b) = "Type Mismatch: " ++ show a ++ " is not " ++ show b
+    show (NotFound) = "Variable not found in type environment"
 
-typeof :: Expr -> Either TypeError Type
-typeof expr = case expr of 
+typeof :: (Expr,TypeEnv) -> Either TypeError Type
+typeof (expr,env) = case expr of 
     TmInt x -> return TyInt
     TmTrue -> return TyBool
     TmFalse -> return TyBool
+    TmVar x -> do
+        let type1 = lookup1 x env
+        if (type1 == Just TyInt)
+		then return TyInt
+        else 
+            if (type1 == Just TyBool)
+            then return TyBool
+            else throwError $ NotFound
     TmLessThan e1 e2 -> do
-        te1 <- typeof e1
-        te2 <- typeof e2
+        te1 <- typeof (e1,env)
+        te2 <- typeof (e2,env)
         if te1 /= TyInt 
         then throwError $ TypeMismatch te1 TyInt
         else 
@@ -49,8 +60,8 @@ typeof expr = case expr of
             else return TyBool			
     
     TmEqualTo e1 e2 -> do
-        te1 <- typeof e1
-        te2 <- typeof e2
+        te1 <- typeof (e1,env)
+        te2 <- typeof (e2,env)
         if te1 /= TyInt 
         then throwError $ TypeMismatch te1 TyInt
         else 
@@ -59,9 +70,9 @@ typeof expr = case expr of
             else return TyBool				
 		
     TmAdd e1 e2 -> do
-        te1 <- typeof e1
-        te2 <- typeof e2
-        if te1 /= TyInt 
+        te1 <- typeof (e1,env)
+        te2 <- typeof (e2,env)
+        if (te1) /= TyInt 
         then throwError $ TypeMismatch te1 TyInt
         else 
             if te2 /= TyInt
@@ -69,16 +80,26 @@ typeof expr = case expr of
             else return TyInt		
 		
     TmIf e1 e2 e3 -> do
-        te1 <- typeof e1
-        te2 <- typeof e2
-        te3 <- typeof e3
+        te1 <- typeof (e1,env)
+        te2 <- typeof (e2,env)
+        te3 <- typeof (e3,env)
         if te1 /= TyBool
-        then throwError $ TypeMismatch te1 TyInt
+        then throwError $ TypeMismatch te1 TyBool
         else
             if te2 /= te3
-            then throwError $ TypeMismatch te2 TyInt
+            then throwError $ TypeMismatch te2 TyBool
             else return te3
- 	
+  
+    {-TmBreak e1 e2 -> do 
+        te1 <- typeof (e1,env)
+        te2 <- typeof (e2,env)
+        if (e1 /= (TmAssign t x e))
+        then return te1
+        else return te2
+    -}
+   
 
-
+result :: Either TypeError Type -> String 
+result (Left e) = show e
+result (Right e) = "No type error was found"
 
