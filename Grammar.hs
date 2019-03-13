@@ -331,10 +331,10 @@ happyReduce_7 = happyReduce 4 4 happyReduction_7
 happyReduction_7 ((HappyAbsSyn4  happy_var_4) `HappyStk`
 	_ `HappyStk`
 	(HappyTerminal (TokenVar _ happy_var_2)) `HappyStk`
-	_ `HappyStk`
+	(HappyAbsSyn5  happy_var_1) `HappyStk`
 	happyRest)
 	 = HappyAbsSyn4
-		 (TmAssign happy_var_2 happy_var_4
+		 (TmAssign happy_var_1 happy_var_2 happy_var_4
 	) `HappyStk` happyRest
 
 happyReduce_8 = happySpecReduce_3  4 happyReduction_8
@@ -473,13 +473,13 @@ parseError (t:ts) = error ("Parse error at line:column " ++ (tokenPosn t))
 data Type = TyInt | TyBool 
    deriving (Show,Eq)
 
-type Environment = [ (String,Expr) ]
+type Environment = [ (String,Expr,Type) ]
 
 data Expr = TmInt Int | TmTrue | TmFalse | TmLessThan Expr Expr 
             | TmAdd Expr Expr | TmVar String 
             | TmIf Expr Expr Expr 
             | TmComma Expr Expr | TmList Expr
-			| TmAssign String Expr
+			| TmAssign Type String Expr
 			| TmEqualTo Expr Expr
 			| TmBreak Expr Expr
     deriving (Show,Eq)
