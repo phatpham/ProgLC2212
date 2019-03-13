@@ -56,7 +56,7 @@ Exp : int                                       { TmInt $1 }
     | '(' Exp ')'                               { $2 }
 	| Exp ',' Exp								{ TmComma $1 $3 }
 	| '[' Exp ']'								{ TmList $2 }
-	| Exp ;                                         { TmBreak }
+	| Exp ';' Exp                                { TmBreak $1 $3 }
 
 Type : Bool            { TyBool } 
      | Int             { TyInt } 
@@ -78,6 +78,6 @@ data Expr = TmInt Int | TmTrue | TmFalse | TmLessThan Expr Expr
             | TmComma Expr Expr | TmList Expr
 			| TmAssign String Expr
 			| TmEqualTo Expr Expr
-			| TmBreak
+			| TmBreak Expr Expr
     deriving (Show,Eq)
 } 

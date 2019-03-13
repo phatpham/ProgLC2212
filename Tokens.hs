@@ -7073,10 +7073,10 @@ alex_accept = listArray (0 :: Int, 51)
   , AlexAccNone
   , AlexAccSkip
   , AlexAccSkip
+  , AlexAcc 37
   , AlexAcc 36
   , AlexAcc 35
   , AlexAcc 34
-  , AlexAccSkip
   , AlexAcc 33
   , AlexAcc 32
   , AlexAcc 31
@@ -7113,10 +7113,11 @@ alex_accept = listArray (0 :: Int, 51)
   , AlexAcc 0
   ]
 
-alex_actions = array (0 :: Int, 37)
-  [ (36,alex_action_2)
-  , (35,alex_action_3)
-  , (34,alex_action_4)
+alex_actions = array (0 :: Int, 38)
+  [ (37,alex_action_2)
+  , (36,alex_action_3)
+  , (35,alex_action_4)
+  , (34,alex_action_5)
   , (33,alex_action_6)
   , (32,alex_action_7)
   , (31,alex_action_8)
@@ -7153,7 +7154,7 @@ alex_actions = array (0 :: Int, 37)
   , (0,alex_action_21)
   ]
 
-{-# LINE 38 "Tokens.x" #-}
+{-# LINE 37 "Tokens.x" #-}
  
 
 -- Helper function
@@ -7181,7 +7182,8 @@ data Token =
   TokenLList AlexPosn            |
   TokenRList AlexPosn            |
   TokenList AlexPosn             |
-  TokenAssign AlexPosn
+  TokenAssign AlexPosn           |
+  TokenBreak AlexPosn
   deriving (Eq,Show) 
 
 tokenPosn :: Token -> String
@@ -7205,10 +7207,12 @@ tokenPosn (TokenLList (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenList (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenEqualTo (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenAssign (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenBreak (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 
 alex_action_2 =  tok (\p s -> TokenTypeBool p)
 alex_action_3 =  tok (\p s -> TokenTypeInt p) 
 alex_action_4 =  tok (\p s -> TokenInt p (read s)) 
+alex_action_5 =  tok (\p s -> TokenBreak p) 
 alex_action_6 =  tok (\p s -> TokenEqualTo p) 
 alex_action_7 =  tok (\p s -> TokenAssign p) 
 alex_action_8 =  tok (\p s -> TokenTrue p) 

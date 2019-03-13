@@ -9,7 +9,7 @@ check :: [String] -> IO ()
 check [] = error "Missing argument: Source file\n Usage: myinterpreter <filename>.cql"
 check [p] = do b <- doesFileExist p
                    interpret p b
-check _ = error "Too many arguments, Expected: 1\n Usage: myinterpreter <filename>.cql"
+check _ = error "Incorrect argument, Expected: 1\n Usage: myinterpreter <filename>.cql"
 
 interpret :: String -> Bool -> IO ()
 interpret p b | b = do text <- readFile p
