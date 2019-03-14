@@ -89,14 +89,18 @@ typeof (expr,env) = case expr of
             if te2 /= te3
             then throwError $ TypeMismatch te2 TyBool
             else return te3
-  
-    {-TmBreak e1 e2 -> do 
+
+    TmBreak (TmAssign t x e) e2 -> do 
+        te2 <- typeof(e2, addBinding x t env) 
+        return te2 
+	
+    TmBreak e1 e2 -> do 
         te1 <- typeof (e1,env)
         te2 <- typeof (e2,env)
-        if (e1 /= (TmAssign t x e))
-        then return te1
-        else return te2
-    -}
+        return te2
+    
+    TmAssign t x e -> do
+        return t
    
 
 result :: Either TypeError Type -> String 

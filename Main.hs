@@ -17,7 +17,7 @@ main' = do putStrLn ("Toy Interactive Mode - enter an expression : ")
            let typeCheck = (result (typeof (parsedProg,[])))
            if (typeCheck == "No type error was found")
            --Evaluate if right type
-           then putStrLn (printEval (evalLoop (parsedProg,[]))) 
+           then putStrLn (printEval (run parsedProg)) 
            --Print error if not valid type
            else putStrLn (typeCheck)
 

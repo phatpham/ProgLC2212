@@ -19,3 +19,9 @@ type/eval
 -write a makefile
 -additional (comments, ide-support,..)
 -get stream working
+
+
+1 1 1 1 
+2 5 3 1
+
+Add Exp; to grammar
