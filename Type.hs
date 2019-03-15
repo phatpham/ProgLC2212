@@ -126,11 +126,18 @@ typeof (expr,env) = case expr of
 
     TmBreak e1 e2 -> do 
         te1 <- typeof (e1,env)
-        te2 <- typeof (e2,env)
+        te2 <- typeof (e2,getEnv (e1,env))
         return te2
     
     TmAssign t x e -> do
         return t
+
+-- Idk how this work, but it does
+getEnv :: (Expr,TypeEnv) -> TypeEnv
+getEnv ((TmAssign t x e),env) = (addBinding x t env)
+getEnv ((TmBreak (TmAssign t x e) e2),env) = getEnv (e2,(addBinding x t env))
+getEnv ((TmBreak e1 e2),env) = getEnv (e2,getEnv(e1,env))
+getEnv (_,env) = env
 
 
 result :: Either TypeError Type -> String 

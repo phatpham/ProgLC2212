@@ -20,7 +20,6 @@ main' = do putStrLn ("Toy Interactive Mode - enter an expression : ")
            then putStrLn (printEval (run parsedProg)) 
            --Print error if not valid type
            else putStrLn (typeCheck)
-
            main'
 
 noParse :: ErrorCall -> IO ()

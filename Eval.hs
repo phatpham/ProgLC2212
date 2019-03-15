@@ -86,3 +86,7 @@ printEval (TmInt n) = show n
 printEval (TmTrue) = "True"
 printEval (TmFalse) = "False"
 printEval _ = "Evaluation unsuccessful"
+
+printEnv :: State -> String
+printEnv (e,env) = show env
+
