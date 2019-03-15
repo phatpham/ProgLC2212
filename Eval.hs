@@ -29,9 +29,9 @@ eval (TmFalse,env) = (TmFalse,env)
 eval ((TmAssign t x e),env) = (e, update env x e)
 eval ((TmVar x),env) = (e',env') 
                     where (e',env') = getValueBinding x env
-					
+
 eval ((TmLessThan (TmInt n1) (TmInt n2)),env) =
-	if (n1 < n2)
+    if (n1 < n2)
     then (TmTrue,env)
     else (TmFalse,env)
 	
@@ -43,6 +43,20 @@ eval ((TmEqualTo (TmInt n1) (TmInt n2)),env) =
 eval (TmAdd (TmInt n1) (TmInt n2),env) = (TmInt (n1+n2),env)
 eval (TmAdd e1 e2,env) = (eval ((TmAdd fstEval sndEval),env)) where fstEval = fst (eval (e1,env))
                                                                     sndEval = fst (eval (e2,env))
+
+eval (TmMulti (TmInt n1) (TmInt n2), env) = (TmInt (n1*n2),env)
+eval (TmMulti e1 e2, env) = (eval ((TmMulti fstEval sndEval),env)) where fstEval = fst (eval (e1,env))
+                                                                         sndEval = fst (eval (e2,env))
+
+eval (TmSubtract (TmInt n1) (TmInt n2), env) = (TmInt (n1-n2),env)
+eval (TmSubtract e1 e2, env) = (eval ((TmSubtract fstEval sndEval),env)) where fstEval = fst (eval (e1,env))
+                                                                               sndEval = fst (eval (e2,env))
+{-
+eval (TmDivide (TmInt n1) (TmInt n2), env) = (TmInt (n1 / n2),env)
+eval (TmDivide e1 e2, env) = (eval ((TmDivide fstEval sndEval),env)) where fstEval = fst (eval (e1,env))
+                                                                           sndEval = fst (eval (e2,env))
+
+-}
 
 eval (TmIf e1 e2 e3 ,env) = if (fst (eval (e1,env)) == TmTrue) 
                             then (eval (e2,env)) 

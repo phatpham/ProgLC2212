@@ -1,0 +1,48 @@
+DONE:
+ -  Basic assignment:
+        #   Bool x = true;
+        #   Int x = 5;
+
+ -  Basic functionality:
+        #   x+5;
+        #   x-5;
+        #   x*5;
+        #   (Int x = 5; x+3)
+        #   if else then
+
+ -  Makefile?
+ -  Input/Error Checking
+ -
+
+LEFT TO DO:
+ -  Submission 1
+        -   Implement List [x1,x2,x3]
+        -   Implement Loop
+        -   Fix Assigned Boolean operations
+            # E.g. x > 5
+        -   Finish Type.hs
+        -   Finish Eval.hs
+        -   Implement stream
+            # E.g. 1 1 1 1
+                   2 5 3 1
+        -   Implement exercises
+            # ex1
+            # ex2
+            # ex3
+            # ex4
+            # ex5
+
+ -  Submission 2
+
+
+
+ -  Additional
+    #   Comments
+    #   IDE support
+    #   Fractional Numbers
+
+
+
+
+
+Add Exp; to grammar

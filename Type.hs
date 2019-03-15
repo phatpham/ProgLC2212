@@ -17,7 +17,7 @@ lookup1 :: String -> TypeEnv -> Maybe Type
 lookup1 x [] = Nothing
 lookup1 x env | x == (fst (head env)) =  Just (snd (head env))
               | otherwise = lookup1 x (tail env)
-			 
+
 addBinding :: String -> Type -> TypeEnv -> TypeEnv
 addBinding x typ [] = [(x,typ)]
 addBinding x typ ((y,e):env) | (x,typ) == (y,e) = env 
@@ -44,7 +44,7 @@ typeof (expr,env) = case expr of
     TmVar x -> do
         let type1 = lookup1 x env
         if (type1 == Just TyInt)
-		then return TyInt
+        then return TyInt
         else 
             if (type1 == Just TyBool)
             then return TyBool
@@ -57,8 +57,8 @@ typeof (expr,env) = case expr of
         else 
             if te2 /= TyInt
             then throwError $ TypeMismatch te2 TyInt
-            else return TyBool			
-    
+            else return TyBool
+
     TmEqualTo e1 e2 -> do
         te1 <- typeof (e1,env)
         te2 <- typeof (e2,env)
@@ -67,8 +67,8 @@ typeof (expr,env) = case expr of
         else 
             if te2 /= TyInt
             then throwError $ TypeMismatch te2 TyInt
-            else return TyBool				
-		
+            else return TyBool
+
     TmAdd e1 e2 -> do
         te1 <- typeof (e1,env)
         te2 <- typeof (e2,env)
@@ -77,8 +77,38 @@ typeof (expr,env) = case expr of
         else 
             if te2 /= TyInt
             then throwError $ TypeMismatch te2 TyInt
-            else return TyInt		
-		
+            else return TyInt
+
+    TmMulti e1 e2 -> do
+        te1 <- typeof (e1,env)
+        te2 <- typeof (e2,env)
+        if (te1) /= TyInt 
+        then throwError $ TypeMismatch te1 TyInt
+        else 
+            if te2 /= TyInt
+            then throwError $ TypeMismatch te2 TyInt
+            else return TyInt
+
+    TmSubtract e1 e2 -> do
+            te1 <- typeof (e1,env)
+            te2 <- typeof (e2,env)
+            if (te1) /= TyInt
+            then throwError $ TypeMismatch te1 TyInt
+            else
+                if te2 /= TyInt
+                then throwError $ TypeMismatch te2 TyInt
+                else return TyInt
+
+    TmDivide e1 e2 -> do
+                te1 <- typeof (e1,env)
+                te2 <- typeof (e2,env)
+                if (te1) /= TyInt
+                then throwError $ TypeMismatch te1 TyInt
+                else
+                    if te2 /= TyInt
+                    then throwError $ TypeMismatch te2 TyInt
+                    else return TyInt
+
     TmIf e1 e2 e3 -> do
         te1 <- typeof (e1,env)
         te2 <- typeof (e2,env)
@@ -93,7 +123,7 @@ typeof (expr,env) = case expr of
     TmBreak (TmAssign t x e) e2 -> do 
         te2 <- typeof(e2, addBinding x t env) 
         return te2 
-	
+
     TmBreak e1 e2 -> do 
         te1 <- typeof (e1,env)
         te2 <- typeof (e2,env)
@@ -101,7 +131,7 @@ typeof (expr,env) = case expr of
     
     TmAssign t x e -> do
         return t
-   
+
 
 result :: Either TypeError Type -> String 
 result (Left e) = show e

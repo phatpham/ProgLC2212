@@ -8,13 +8,16 @@ import Tokens
 %error { parseError }
 %token 
     Bool   { TokenTypeBool _ } 
-    Int    { TokenTypeInt _ } 
-    int    { TokenInt _ $$ } 
+    Int    { TokenTypeInt _ }
+    int    { TokenInt _ $$ }
     true   { TokenTrue _ }
     false  { TokenFalse _ }
     '<'    { TokenLessThan _ }
 	'=='   { TokenEqualTo _ }
     '+'    { TokenPlus _ }
+	'*'	   { TokenMulti _ }
+	'-'    { TokenMinus _ }
+	'/'    { TokenDivide _ }
     var    { TokenVar _ $$ }
     if     { TokenIf _ }
     then   { TokenThen _ }
@@ -37,6 +40,9 @@ import Tokens
 %left '<'
 %left ';'
 %left '+'
+%left '*'
+%left '-'
+%left '/'
 %left ','
 %right '='
 %right '=='
@@ -44,23 +50,25 @@ import Tokens
 
 
 %% 
-Exp : int                                       { TmInt $1 } 
+Exp : int                                       { TmInt $1 }
     | var                                       { TmVar $1 }
     | true                                      { TmTrue }
     | false                                     { TmFalse } 
-    | Exp ';' Exp                                { TmBreak $1 $3 }
     | Exp '<' Exp                               { TmLessThan $1 $3 } 
 	| Exp '==' Exp                              { TmEqualTo $1 $3 }
 	| Type var '=' Exp                          { TmAssign $1 $2 $4}  
     | Exp '+' Exp                               { TmAdd $1 $3 }
+	| Exp '*' Exp                               { TmMulti $1 $3 }
+	| Exp '-' Exp                               { TmSubtract $1 $3 }
+	| Exp '/' Exp                               { TmDivide $1 $3 }
     | if Exp then Exp else Exp                  { TmIf $2 $4 $6 } 
     | '(' Exp ')'                               { $2 }
-	| Exp ',' Exp								{ TmComma $1 $3 }
-	| '[' Exp ']'								{ TmList $2 }
-	
+	| Exp ',' Exp								 { TmComma $1 $3 }
+	| '[' Exp ']'								 { TmList $2 }
+	| Exp ';' Exp                               { TmBreak $1 $3 }
 
 Type : Bool            { TyBool } 
-     | Int             { TyInt } 
+     | Int             { TyInt }
 
 
 { 
@@ -73,8 +81,8 @@ data Type = TyInt | TyBool
 
 type Environment = [ (String,Expr) ]
 
-data Expr = TmInt Int | TmTrue | TmFalse | TmLessThan Expr Expr 
-            | TmAdd Expr Expr | TmVar String 
+data Expr = TmInt Int | TmTrue | TmFalse | TmLessThan Expr Expr
+            | TmAdd Expr Expr | TmVar String | TmMulti Expr Expr | TmSubtract Expr Expr | TmDivide Expr Expr
             | TmIf Expr Expr Expr 
             | TmComma Expr Expr | TmList Expr
 			| TmAssign Type String Expr

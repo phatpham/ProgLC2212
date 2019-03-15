@@ -12,25 +12,28 @@ $alpha = [a-zA-Z]
 tokens :-
 $white+       ; 
   "#".*        ; 
-  Bool           { tok (\p s -> TokenTypeBool p)} 
-  Int            { tok (\p s -> TokenTypeInt p) }
+  Bool           { tok (\p s -> TokenTypeBool p)     }
+  Int            { tok (\p s -> TokenTypeInt p)      }
   $digit+        { tok (\p s -> TokenInt p (read s)) }
-  \;             { tok (\p s -> TokenBreak p) }
-  "=="           { tok (\p s -> TokenEqualTo p) }
-  =              { tok (\p s -> TokenAssign p) }
-  true           { tok (\p s -> TokenTrue p) }
-  false          { tok (\p s -> TokenFalse p) }
-  if             { tok (\p s -> TokenIf p) }
-  then           { tok (\p s -> TokenThen p) }
-  else           { tok (\p s -> TokenElse p) }
-  \:             { tok (\p s -> TokenHasType p) }
-  \<             { tok (\p s -> TokenLessThan p) }
-  \+             { tok (\p s -> TokenPlus p) }
-  \(             { tok (\p s -> TokenLParen p) }
-  \)             { tok (\p s -> TokenRParen p) }
-  \[             { tok (\p s -> TokenLList p) }
-  \,             { tok (\p s -> TokenComma p) }
-  \]             { tok (\p s -> TokenRList p) }
+  \;             { tok (\p s -> TokenBreak p)        }
+  "=="           { tok (\p s -> TokenEqualTo p)      }
+  =              { tok (\p s -> TokenAssign p)       }
+  true           { tok (\p s -> TokenTrue p)         }
+  false          { tok (\p s -> TokenFalse p)        }
+  if             { tok (\p s -> TokenIf p)           }
+  then           { tok (\p s -> TokenThen p)         }
+  else           { tok (\p s -> TokenElse p)         }
+  \:             { tok (\p s -> TokenHasType p)      }
+  \<             { tok (\p s -> TokenLessThan p)     }
+  \+             { tok (\p s -> TokenPlus p)         }
+  \*             { tok (\p s -> TokenMulti p)        }
+  \-             { tok (\p s-> TokenMinus p)         }
+  \/             { tok (\p s -> TokenDivide p)       }
+  \(             { tok (\p s -> TokenLParen p)       }
+  \)             { tok (\p s -> TokenRParen p)       }
+  \[             { tok (\p s -> TokenLList p)        }
+  \,             { tok (\p s -> TokenComma p)        }
+  \]             { tok (\p s -> TokenRList p)        }
   $alpha [$alpha $digit \_ \’]*   { tok (\p s -> TokenVar p s) } 
   
 
@@ -42,8 +45,9 @@ tok f p s = f p s
 -- The token type: 
 data Token = 
   TokenTypeBool AlexPosn         | 
-  TokenTypeInt  AlexPosn         | 
-  TokenInt AlexPosn Int          | 
+  TokenTypeInt  AlexPosn         |
+  TokenTypeFractional AlexPosn   |
+  TokenInt AlexPosn Int          |
   TokenTrue AlexPosn             |
   TokenFalse AlexPosn            |
   TokenIf AlexPosn               |
@@ -56,6 +60,9 @@ data Token =
   TokenVar AlexPosn String       |
   TokenLessThan AlexPosn         |
   TokenPlus AlexPosn             |
+  TokenMulti AlexPosn            |
+  TokenMinus AlexPosn            |
+  TokenDivide AlexPosn           |
   TokenEqualTo AlexPosn          |
   TokenComma AlexPosn            |
   TokenLList AlexPosn            |
@@ -73,6 +80,9 @@ tokenPosn (TokenTrue  (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenFalse  (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenLessThan  (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenPlus  (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenMulti (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenMinus  (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenDivide  (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenIf (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenThen (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenElse (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
