@@ -41,3 +41,7 @@ noParse e = do let err =  show e
                hPutStrLn stderr err
                putStrLn("----------------")
                main
+
+readInt :: [String] -> [Int]
+readInt [] = []
+readInt (x:xs) = (read x::Int):(readInt xs)
