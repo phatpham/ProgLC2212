@@ -21,7 +21,7 @@ check _ = error "Incorrect argument, Expected: 1\n Usage: Interpreter.hs"
 interpret :: String -> Bool -> IO ()
 interpret p b | b = catch main' noParse
               | otherwise = error ("Source file doesn't exist: " ++ p)
-
+{-
 main' = do (filename : _) <- getArgs
            sourceText <- readFile filename
            putStrLn ("Toy Interactive Mode - enter an expression : ")
@@ -34,6 +34,16 @@ main' = do (filename : _) <- getArgs
            then putStrLn (printEval (run parsedProg))
            --Print error if not valid type
            else putStrLn (typeCheck)
+
+-}
+           
+main' = do (filename : _) <- getArgs
+           sourceText <- readFile filename
+           let eachLine = lines (sourceText)
+           let ls = (map (split ' ') eachLine)
+           let mapInt = map readInt ls
+           putStrLn (show mapInt)
+
 
 noParse :: ErrorCall -> IO ()
 noParse e = do let err =  show e
