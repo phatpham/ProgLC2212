@@ -132,7 +132,7 @@ typeof (expr,env) = case expr of
     TmAssign t x e -> do
         return t
 
--- Idk how this work, but it does
+-- Idk how this work, but it does (save the environment when it sees TmBreak)
 getEnv :: (Expr,TypeEnv) -> TypeEnv
 getEnv ((TmAssign t x e),env) = (addBinding x t env)
 getEnv ((TmBreak (TmAssign t x e) e2),env) = getEnv (e2,(addBinding x t env))

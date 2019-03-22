@@ -12,6 +12,8 @@ $alpha = [a-zA-Z]
 tokens :-
 $white+       ; 
   "#".*        ; 
+  "\n"          ;
+
   Bool           { tok (\p s -> TokenTypeBool p)     }
   Int            { tok (\p s -> TokenTypeInt p)      }
   $digit+        { tok (\p s -> TokenInt p (read s)) }
@@ -69,7 +71,7 @@ data Token =
   TokenRList AlexPosn            |
   TokenList AlexPosn             |
   TokenAssign AlexPosn           |
-  TokenBreak AlexPosn
+  TokenBreak AlexPosn            
   deriving (Eq,Show) 
 
 tokenPosn :: Token -> String
@@ -97,4 +99,5 @@ tokenPosn (TokenList (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenEqualTo (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenAssign (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenBreak (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+
 }

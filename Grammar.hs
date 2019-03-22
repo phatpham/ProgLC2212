@@ -581,14 +581,14 @@ parseError :: [Token] -> a
 parseError [] = error "Unknown Parse Error" 
 parseError (t:ts) = error ("Parse error at line:column " ++ (tokenPosn t))
 
-data Type = TyInt | TyBool 
+data Type = TyInt | TyBool | TyString
    deriving (Show,Eq)
 
 type Environment = [ (String,Expr) ]
 
-data Expr = TmInt Int | TmTrue | TmFalse | TmLessThan Expr Expr
+data Expr = TmInt Int | TmTrue | TmFalse | TmLessThan Expr Expr 
             | TmAdd Expr Expr | TmVar String | TmMulti Expr Expr | TmSubtract Expr Expr | TmDivide Expr Expr
-            | TmIf Expr Expr Expr 
+            | TmIf Expr Expr Expr  
             | TmComma Expr Expr | TmList Expr
 			| TmAssign Type String Expr
 			| TmEqualTo Expr Expr
