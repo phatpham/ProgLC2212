@@ -53,4 +53,4 @@ Pseudo Code
 	}
  -	Output print n[]
  
- ex5
+ Read File and get Int values -> Save Int value in env -> Eval Int value -> IO() Value -> Read Next Line -> Repeat
