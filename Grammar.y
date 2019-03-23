@@ -9,6 +9,7 @@ import Tokens
 %token 
     Bool   { TokenTypeBool _ } 
     Int    { TokenTypeInt _ }
+    Stream { TokenTypeStream _ }
     int    { TokenInt _ $$ }
     true   { TokenTrue _ }
     false  { TokenFalse _ }
@@ -25,8 +26,8 @@ import Tokens
     '='    { TokenAssign _ }
     '('    { TokenLParen _ } 
     ')'    { TokenRParen _ } 
-	'['	   { TokenLList _ }
-	']'    { TokenRList _ }
+	'['	   { TokenLStream _ }
+	']'    { TokenRStream _ }
 	','	   { TokenComma _ }
 	';'    { TokenBreak _}
 
@@ -64,18 +65,19 @@ Exp : int                                       { TmInt $1 }
     | if Exp then Exp else Exp                  { TmIf $2 $4 $6 } 
     | '(' Exp ')'                               { $2 }
 	| Exp ',' Exp								 { TmComma $1 $3 }
-	| '[' Exp ']'								 { TmList $2 }
+	| '[' Exp ']'								 { TmStream $2 }
 	| Exp ';' Exp                               { TmBreak $1 $3 }
 
 Type : Bool            { TyBool } 
      | Int             { TyInt }
+     | Stream          { TyStream }
 
 { 
 parseError :: [Token] -> a
 parseError [] = error "Unknown Parse Error" 
 parseError (t:ts) = error ("Parse error at line:column " ++ (tokenPosn t))
 
-data Type = TyInt | TyBool | TyString
+data Type = TyInt | TyBool | TyString | TyStream
    deriving (Show,Eq)
 
 type Environment = [ (String,Expr) ]
@@ -83,7 +85,7 @@ type Environment = [ (String,Expr) ]
 data Expr = TmInt Int | TmTrue | TmFalse | TmLessThan Expr Expr 
             | TmAdd Expr Expr | TmVar String | TmMulti Expr Expr | TmSubtract Expr Expr | TmDivide Expr Expr
             | TmIf Expr Expr Expr  
-            | TmComma Expr Expr | TmList Expr
+            | TmComma Expr Expr | TmStream Expr
 			| TmAssign Type String Expr
 			| TmEqualTo Expr Expr
 			| TmBreak Expr Expr

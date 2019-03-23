@@ -72,7 +72,6 @@ eval (TmIf e1 e2 e3 ,env) = if (fst (eval (e1,env)) == TmTrue)
 eval ((TmBreak e1 e2),env) = (eval (e2,env')) where (e,env') = eval (e1,env) 
 
 
-		 
 run :: Expr -> Expr
 run e = fst $ (eval (e,[]))
 
@@ -116,24 +115,25 @@ processLine fileName = do r <- readFile fileName
                           then putStrLn "LOL"
                           else (putStrLn (show eachLine))
 
+
 -- Get nth list from the stream
 getNthList :: [[String]] -> Int -> [String]
 getNthList [] _ = []
-getNthList (xs:xss) n = (xs!!n):(getNthList (xss) n)  
+getNthList (xs:xss) n = (xs!!n):(getNthList (xss) n)
 
-
---Dont ask me to explain this, I just cant, will not be able to rewrite this (Created based on trial and error), basically it changes the stream to human-readable from
+--Everything is the same, I've just changed TmList to TmStream
 convertToString :: Expr -> [[String]]
 convertToString (TmInt n) = [[(show n)]]
-convertToString (TmList e1) = convertToString e1
-convertToString (TmComma (TmList e1) (TmList e2)) = [(convertToString2 e1),(convertToString2 e2)]
+convertToString (TmStream e1) = convertToString e1
+convertToString (TmComma (TmStream e1) (TmStream e2)) = [(convertToString2 e1),(convertToString2 e2)]
 convertToString (TmComma e1 (TmInt n)) = [(convertToString2 e1) ++[show n]]
-convertToString (TmComma (TmList e1) e2) = [(convertToString2 e1)] ++ (convertToString e1)
-convertToString (TmComma e1 (TmList e2)) = (convertToString e1) ++ [(convertToString2 e2)]
+convertToString (TmComma (TmStream e1) e2) = [(convertToString2 e1)] ++ (convertToString e1)
+convertToString (TmComma e1 (TmStream e2)) = (convertToString e1) ++ [(convertToString2 e2)]
 convertToString (TmComma e1 e2) = (convertToString e1) ++ (convertToString e2)
-
 
 convertToString2 :: Expr -> [String]
 convertToString2 (TmInt n) = [(show n)]
 convertToString2 (TmComma e1 e2) = (convertToString2 e1) ++ (convertToString2 e2)
+
+
 

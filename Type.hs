@@ -132,6 +132,11 @@ typeof (expr,env) = case expr of
     TmAssign t x e -> do
         return t
 
+-- I am still not sure how this thing works :D
+    TmStream e -> do
+        te1 <- typeof (e, env)
+        return te1
+
 -- Idk how this work, but it does (save the environment when it sees TmBreak)
 getEnv :: (Expr,TypeEnv) -> TypeEnv
 getEnv ((TmAssign t x e),env) = (addBinding x t env)
