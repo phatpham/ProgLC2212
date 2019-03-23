@@ -42,7 +42,14 @@ main' = do (filename : _) <- getArgs
            let eachLine = lines (sourceText)
            let ls = (map (split ' ') eachLine)
            let mapInt = map readInt ls
+           --Prints results after each function for testing
+           putStrLn (show ls)
            putStrLn (show mapInt)
+           putStrLn (show eachLine)
+           -- I am using show() to convert mapInt to String so alex can scan it and convert it
+           let parsedProg = parseCalc (alexScanTokens (show mapInt))
+           putStrLn ("Parsed as " ++ (show parsedProg))
+           --putStrLn (printEval (run parsedProg)
 
 
 noParse :: ErrorCall -> IO ()
@@ -52,6 +59,7 @@ noParse e = do let err =  show e
                putStrLn("----------------")
                main
 
+-- Converts the string input to Int values
 readInt :: [String] -> [Int]
 readInt [] = []
 readInt (x:xs) = (read x::Int):(readInt xs)

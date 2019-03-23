@@ -16,6 +16,7 @@ $white+       ;
 
   Bool           { tok (\p s -> TokenTypeBool p)     }
   Int            { tok (\p s -> TokenTypeInt p)      }
+  Stream         { tok (\p s -> TokenTypeStream p)   }
   $digit+        { tok (\p s -> TokenInt p (read s)) }
   \;             { tok (\p s -> TokenBreak p)        }
   "=="           { tok (\p s -> TokenEqualTo p)      }
@@ -33,9 +34,9 @@ $white+       ;
   \/             { tok (\p s -> TokenDivide p)       }
   \(             { tok (\p s -> TokenLParen p)       }
   \)             { tok (\p s -> TokenRParen p)       }
-  \[             { tok (\p s -> TokenLList p)        }
+  \[             { tok (\p s -> TokenLStream p)      }
   \,             { tok (\p s -> TokenComma p)        }
-  \]             { tok (\p s -> TokenRList p)        }
+  \]             { tok (\p s -> TokenRStream p)      }
   $alpha [$alpha $digit \_ \’]*   { tok (\p s -> TokenVar p s) } 
   
 
@@ -48,6 +49,7 @@ tok f p s = f p s
 data Token = 
   TokenTypeBool AlexPosn         | 
   TokenTypeInt  AlexPosn         |
+  TokenTypeStream AlexPosn       |
   TokenTypeFractional AlexPosn   |
   TokenInt AlexPosn Int          |
   TokenTrue AlexPosn             |
@@ -67,8 +69,8 @@ data Token =
   TokenDivide AlexPosn           |
   TokenEqualTo AlexPosn          |
   TokenComma AlexPosn            |
-  TokenLList AlexPosn            |
-  TokenRList AlexPosn            |
+  TokenLStream AlexPosn          |
+  TokenRStream AlexPosn          |
   TokenList AlexPosn             |
   TokenAssign AlexPosn           |
   TokenBreak AlexPosn            
@@ -77,6 +79,7 @@ data Token =
 tokenPosn :: Token -> String
 tokenPosn (TokenTypeBool (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenTypeInt  (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenTypeStream (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenInt  (AlexPn a l c) _) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenTrue  (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenFalse  (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
@@ -93,8 +96,8 @@ tokenPosn (TokenLParen (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenRParen (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenVar (AlexPn a l c) _) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenComma (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenRList (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenLList (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenRStream (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenLStream (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenList (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenEqualTo (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenAssign (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
