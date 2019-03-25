@@ -20,7 +20,7 @@ lookup1 x env | x == (fst (head env)) =  Just (snd (head env))
 
 addBinding :: String -> Type -> TypeEnv -> TypeEnv
 addBinding x typ [] = [(x,typ)]
-addBinding x typ ((y,e):env) | (x,typ) == (y,e) = env 
+addBinding x typ ((y,e):env) | x == y = (y,e):env
                              | otherwise = (y,e):(addBinding x typ env)
 
 {-
@@ -40,6 +40,7 @@ typeof :: (Expr,TypeEnv) -> Either TypeError Type
 typeof (expr,env) = case expr of 
     TmInt x -> return TyInt
     TmTrue -> return TyBool
+    TmStream x -> return TyStream
     TmFalse -> return TyBool
     TmVar x -> do
         let type1 = lookup1 x env
@@ -48,7 +49,11 @@ typeof (expr,env) = case expr of
         else 
             if (type1 == Just TyBool)
             then return TyBool
-            else throwError $ NotFound
+            else
+                if (type1 == Just TyStream)
+                then return TyStream
+                else throwError $ NotFound
+
     TmLessThan e1 e2 -> do
         te1 <- typeof (e1,env)
         te2 <- typeof (e2,env)
@@ -132,10 +137,31 @@ typeof (expr,env) = case expr of
     TmAssign t x e -> do
         return t
 
--- I am still not sure how this thing works :D
-    TmStream e -> do
-        te1 <- typeof (e, env)
-        return te1
+    TmMap e1 e2 -> do
+        te1 <- typeof (e1,env)
+        te2 <- typeof (e2, getEnv (e1,env))
+        return te2
+
+    TmAddFunc x -> return TyInt
+
+    TmWhile e1 e2 -> do
+           te1 <- typeof (e1,env)
+           te2 <- typeof (e2,env)
+           if te1 /= TyBool
+           then throwError $ TypeMismatch te1 TyBool
+           else return te2
+
+    TmGetElem x n -> do
+         let te1 = lookup1 x env
+         if te1 /= Just TyStream
+         then throwError $ NotFound
+         else return TyStream
+
+    TmRemoveElem x n -> do
+         let te1 = lookup1 x env
+         if te1 /= Just TyStream
+         then throwError $ NotFound
+         else return TyStream
 
 -- Idk how this work, but it does (save the environment when it sees TmBreak)
 getEnv :: (Expr,TypeEnv) -> TypeEnv
@@ -145,7 +171,7 @@ getEnv ((TmBreak e1 e2),env) = getEnv (e2,getEnv(e1,env))
 getEnv (_,env) = env
 
 
-result :: Either TypeError Type -> String 
+result :: Either TypeError Type -> String
 result (Left e) = show e
 result (Right e) = "No type error was found"
 

@@ -37,8 +37,17 @@ $white+       ;
   \[             { tok (\p s -> TokenLStream p)      }
   \,             { tok (\p s -> TokenComma p)        }
   \]             { tok (\p s -> TokenRStream p)      }
+   map           { tok (\p s -> TokenMap p)          }
+  \.             { tok (\p s -> TokenApply p)        }
+  \{             { tok (\p s -> TokenLBracket p)     }
+  \}             { tok (\p s -> TokenRBracket p)     }
+  while          { tok (\p s -> TokenWhile p)        }
+  get            { tok (\p s -> TokenGet p)          }
+  size           { tok (\p s -> TokenSize p)         }
+  add            { tok (\p s -> TokenAdd p)          }
+  remove         { tok (\p s -> TokenRemove p)       }
+  print          { tok (\p s -> TokenPrint p)        }
   $alpha [$alpha $digit \_ \’]*   { tok (\p s -> TokenVar p s) } 
-  
 
 { 
 
@@ -73,7 +82,17 @@ data Token =
   TokenRStream AlexPosn          |
   TokenList AlexPosn             |
   TokenAssign AlexPosn           |
-  TokenBreak AlexPosn            
+  TokenBreak AlexPosn            |
+  TokenMap AlexPosn              |
+  TokenApply AlexPosn            |
+  TokenLBracket AlexPosn         |
+  TokenRBracket AlexPosn         |
+  TokenWhile AlexPosn            |
+  TokenGet AlexPosn              |
+  TokenSize AlexPosn             |
+  TokenAdd AlexPosn              |
+  TokenRemove AlexPosn           |
+  TokenPrint AlexPosn
   deriving (Eq,Show) 
 
 tokenPosn :: Token -> String
@@ -102,5 +121,14 @@ tokenPosn (TokenList (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenEqualTo (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenAssign (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenBreak (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
-
+tokenPosn (TokenMap (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenApply (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenLBracket (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenRBracket (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenWhile (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenGet (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenSize (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenAdd (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenRemove (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenPrint (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 }
