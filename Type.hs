@@ -163,6 +163,34 @@ typeof (expr,env) = case expr of
          then throwError $ NotFound
          else return TyStream
 
+    TmGetSize x -> do
+        let te1 = lookup1 x env
+        if te1 /= Just TyStream
+        then throwError $ NotFound
+        else return TyStream
+
+    TmAddElem x e -> do
+        let te1 = lookup1 x env
+        te2 <- typeof(e,env)
+        if te1 /= Just TyStream
+        then throwError $ NotFound
+        else
+            if te2 /= TyStream
+            then throwError $ TypeMismatch te2 TyStream
+            else return te2
+
+    TmInsertElem x n1 n2 -> do
+        let te1 = lookup1 x env
+        if te1 /= Just TyStream
+        then throwError $ NotFound
+        else return TyStream
+
+    TmDeleteElem x n -> do
+        let te1 = lookup1 x env
+        if te1 /= Just TyStream
+        then throwError $ NotFound
+        else return TyStream
+
 -- Idk how this work, but it does (save the environment when it sees TmBreak)
 getEnv :: (Expr,TypeEnv) -> TypeEnv
 getEnv ((TmAssign t x e),env) = (addBinding x t env)

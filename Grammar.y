@@ -39,7 +39,8 @@ import Tokens
 	size    { TokenSize _ }
 	add     { TokenAdd _ }
 	remove   { TokenRemove _}
-	print    { TokenPrint _ }
+	insert   { TokenInsert _ }
+	delete   { TokenDelete _ }
 
 
 
@@ -55,7 +56,8 @@ import Tokens
 %nonassoc size
 %nonassoc add
 %nonassoc remove
-%nonassoc print
+%nonassoc insert
+%nonassoc delete
 %left ';'
 %left '<'
 %right '='
@@ -93,7 +95,9 @@ Exp : int                                       { TmInt $1 }
 	| var '.' get '(' int ')'                   { TmGetElem $1 $5 }
 	| var '.' size '(' ')'                      { TmGetSize $1 }
     | var '.' add '(' Exp ')'                   { TmAddElem $1 $5 }
-    | var '.' remove '(' int ')'                { TmRemoveElem $1 $5 }
+    | var '.' remove '(' Exp ')'                { TmRemoveElem $1 $5 }
+    | var '.' insert '(' Exp ',' Exp  ')'        { TmInsertElem $1 $5 $7}
+    | var '.' delete '(' Exp ')'                { TmDeleteElem $1 $5 }
 
 Type : Bool            { TyBool } 
      | Int             { TyInt }
@@ -112,7 +116,8 @@ type Environment = [ (String,Expr) ]
 data Expr = TmInt Int | TmTrue | TmFalse | TmLessThan Expr Expr 
             | TmAdd Expr Expr | TmVar String | TmMulti Expr Expr | TmSubtract Expr Expr | TmDivide Expr Expr
             | TmIf Expr Expr Expr | TmMap Expr Expr | TmAddFunc Int
-            | TmComma Expr Expr | TmStream Expr | TmGetElem String Int | TmGetSize String | TmAddElem String Expr | TmRemoveElem String Int
+            | TmComma Expr Expr | TmStream Expr | TmGetElem String Int | TmGetSize String | TmAddElem String Expr
+            | TmRemoveElem String Expr | TmInsertElem String Expr Expr | TmDeleteElem String Expr
 			| TmAssign Type String Expr | TmWhile Expr Expr
 			| TmEqualTo Expr Expr
 			| TmBreak Expr Expr

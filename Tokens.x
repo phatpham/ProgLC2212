@@ -46,7 +46,8 @@ $white+       ;
   size           { tok (\p s -> TokenSize p)         }
   add            { tok (\p s -> TokenAdd p)          }
   remove         { tok (\p s -> TokenRemove p)       }
-  print          { tok (\p s -> TokenPrint p)        }
+  insert         { tok (\p s -> TokenInsert p)       }
+  delete         { tok (\p s -> TokenDelete p)       }
   $alpha [$alpha $digit \_ \’]*   { tok (\p s -> TokenVar p s) } 
 
 { 
@@ -92,7 +93,8 @@ data Token =
   TokenSize AlexPosn             |
   TokenAdd AlexPosn              |
   TokenRemove AlexPosn           |
-  TokenPrint AlexPosn
+  TokenInsert AlexPosn           |
+  TokenDelete AlexPosn
   deriving (Eq,Show) 
 
 tokenPosn :: Token -> String
@@ -130,5 +132,6 @@ tokenPosn (TokenGet (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenSize (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenAdd (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenRemove (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenPrint (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenInsert (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenDelete (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 }
