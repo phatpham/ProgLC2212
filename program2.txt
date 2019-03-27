@@ -1,0 +1,8 @@
+Int x = 5; 
+Int lines = 0;
+while(x < 0) {
+	stream.add([lines]);
+	Int x = (x + 1);
+	Int lines = (lines + 1)  
+}; 
+stream

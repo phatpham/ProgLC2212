@@ -39,7 +39,7 @@ eval ((TmVar x),env) = (e',env)
                     where (e',env') = getValueBinding x env
 
 eval ((TmLessThan e1 e2),env) =
-    if fst(eval (e1,env)) < fst(eval (e2,env))
+    if parseExpr (fst(eval (e1,env))) < parseExpr (fst(eval (e2,env)))
     then (TmTrue,env)
     else (TmFalse,env)
 	
@@ -77,21 +77,42 @@ eval (TmIf e1 e2 e3 ,env) = if (fst (eval (e1,env)) == TmTrue)
 
 eval ((TmBreak e1 e2),env) = (eval (e2,env')) where (e,env') = eval (e1,env) 
 
-eval ((TmMap (TmStream e1) (TmAddFunc n)),env) = let ls = convertStream e1
-                                                     mapedStream = myMap ls (TmAddFunc n)
-                                                 in (parseCalc(alexScanTokens (show mapedStream)),env)
+{-
+eval ((TmMap (TmStream e1) n),env) = let ls = convertStream e1
+                                         mapedStream = myMap ls n
+                                      in (parseCalc(alexScanTokens (show mapedStream)),env)
+
+myMap :: [[Int]] -> String -> [[Int]]
+myMap [[]] _ = [[]]
+myMap (x:xs) n = case n of
+                    "++" -> map (+1) x: myMap xs n
+
+-}
+
+
+eval ((TmGetElem x (TmVar n)), env) = let i = parseAll (convertToString e')
+                                          value = parseExpr (fst(getValueBinding n env))
+                              in (parseCalc(alexScanTokens (show (i !! value))),env)
+                                where (e',env') = getValueBinding x env
 
 eval ((TmGetElem x n), env) = let i = parseAll (convertToString e')
-                              in (parseCalc(alexScanTokens (show (i !! n))),env)
+                              in (parseCalc(alexScanTokens (show (i !! (parseExpr n)))),env)
                                 where (e',env') = getValueBinding x env
 
 eval ((TmRemoveElem x n), env) = let i = parseAll (convertToString e')
                                  in (parseCalc(alexScanTokens (show (drop (parseExpr(fst(eval (n,env)))) i))),update env x $(parseCalc(alexScanTokens (show (drop (parseExpr(fst(eval (n,env)))) i)))))
                                     where (e',env') = getValueBinding x env
 
+eval ((TmAddElem x (TmStream (TmVar n))), env) = let i = parseAll (convertToString e')
+                                                     value = (convertStream (fst(getValueBinding n env)))
+                                                 in (parseCalc(alexScanTokens (show ((value)++i))),update env x $(parseCalc(alexScanTokens (show ((value)++i)))))
+                                                   where (e',env') = getValueBinding x env
+
 eval ((TmAddElem x (TmStream n)), env) = let i = parseAll (convertToString e')
                               in (parseCalc(alexScanTokens (show ((convertStream n)++i))),update env x $(parseCalc(alexScanTokens (show ((convertStream n)++i)))))
                                 where (e',env') = getValueBinding x env
+
+
 {-
 eval ((TmAddElem x (TmInt n)), env) = let i = parseAll (convertToString e')
                               in (parseCalc(alexScanTokens (show ([n]:i))),update env x $(parseCalc(alexScanTokens (show ([n]:i)))))
@@ -108,23 +129,40 @@ eval ((TmDeleteElem x n), env) = let i = parseAll (convertToString e')
                                    where (e',env') = getValueBinding x env
 {-
 eval ((TmInsertElem x n listNumber), env) = let i = parseAll (convertToString e')
-                                            in (parseCalc(alexScanTokens (show ((n:(i!!listNumber)):(drop listNumber i)))),update env x $(parseCalc(alexScanTokens (show (n:(i!!listNumber):(drop listNumber i))))))
+                                            in (parseCalc(alexScanTokens (show ((((parseExpr n):(i !! (parseExpr listNumber)))++(deleteN (parseExpr listNumber) i)))),update env x $(parseCalc(alexScanTokens (show ((parseExpr n):(i !! (parseExpr listNumber))++(deleteN (parseExpr listNumber) i)))))))
                                                 where (e',env') = getValueBinding x env
 
 -}
 
+{-
+eval ((TmInsertElem x n listNumber), env) = let i = parseAll (convertToString e')
+                                               -- ls = (parseExpr n):(i !! (parseExpr (fst(eval (listNumber,env)))))
+                                                ls = (parseExpr n):(take (parseExpr (fst(eval (listNumber,env)))) i):( drop ((parseExpr (fst(eval (listNumber,env)))) + 1) i)
+                                                --take n xs ++ [newElement] ++ drop (n + 1) xs
+                                            in (parseCalc(alexScanTokens (show ls)),update env x $(parseCalc(alexScanTokens (show ls))))
+                                                where (e',env') = getValueBinding x env
 
---get :: Int -> [[Int]] -> Int
---get n [[]] =
+-}
+
+eval ((TmZip x x1),env) = let i = parseAll (convertToString e')
+                              i2 = parseAll (convertToString (fst(e2')))
+                         in (parseCalc(alexScanTokens (show (zipStreams i i2))), update env x $ (parseCalc (alexScanTokens (show(zipStreams i i2)))))
+                            where (e', env') = getValueBinding x env
+                                  e2' = getValueBinding x1 env
+{-
+
+eval ((TmComment s),env) = ((TmComment s),env)
+-}
 
 parseExpr :: Expr -> Int
 parseExpr (TmInt n) =  n
 
-myMap :: [[Int]] -> Expr -> [[Int]]
-myMap [[]] _ = [[]]
-myMap (x:xs) (TmAddFunc n)
- | length xs > 0 = map (+n) x : myMap xs (TmAddFunc n)
- | otherwise = map (+n) x:[]
+zipStreams :: [[Int]] -> [[Int]] -> [[Int]]
+zipStreams [] [] = []
+zipStreams ls [] = ls
+zipStreams [] ls = ls
+zipStreams (x:xs) (y:ys) = (x ++ y):zipStreams xs ys
+
 
 deleteN :: Int -> [a] -> [a]
 deleteN _ []     = []
@@ -139,9 +177,10 @@ run e =  (eval (e,[]))
 printEval :: State -> String
 printEval ((TmInt n),env) = show n
 printEval ((TmStream n),env) = show (parseAll(convertToString n))
-printEval ((TmTrue),env) = "True"
-printEval ((TmFalse),env) = "False"
+printEval ((TmTrue),env) = show "True"
+printEval ((TmFalse),env) = show "False"
 printEval ((TmVar x),env) = show (fst(getValueBinding x env))
+--printEval ((TmComment x),env) = show x
 printEval s = show s
 
 printStream :: String -> Environment -> State
@@ -153,13 +192,18 @@ perfectEval :: FilePath -> FilePath -> IO ()
 perfectEval fileName programName = do r <- readFile fileName
                                       let eachLine = lines (r)
                                       let ls = map (split ' ') eachLine
-                                      let stream = parseCalc (alexScanTokens (show ls))
+                                      --putStrLn (show ls)
+                                      let stream = parseCalc (alexScanTokens (show (parseAll ls)))
+                                      putStrLn (show ls)
+                                      putStrLn (show stream)
                                       r2 <- readFile programName
                                       let parsedProg = parseCalc (alexScanTokens r2)
-                                      let typeCheck = (result (typeof (parsedProg,[])))
+                                      putStrLn (show parsedProg ++ "here")
+                                      let typeCheck = (result (typeof (parsedProg,[("stream",TyStream)])))
                                       if (typeCheck == "No type error was found")
                                       --Evaluate if right type
-                                      then writeFile "output.txt" (show (fst (eval (parsedProg,[("stream",stream)]))))
+                                      then writeFile "output.txt" (show (convertToString (fst (eval (parsedProg,[("stream",stream)])))))
+                                      --then putStrLn (show (fst(eval (parsedProg,[("stream",stream)]))))
                                       --Print error if not valid type
                                       else putStrLn (typeCheck)
 							
@@ -215,13 +259,16 @@ convertStream e1 = parseAll (convertToString e1)
 --Everything is the same, I've just changed TmList to TmStream
 convertToString :: Expr -> [[String]]
 convertToString (TmInt n) = [[(show n)]]
+--convertToString (TmVar n) = [[convertToString (fst(getValueBinding x env))]]
 convertToString (TmStream e1) = convertToString e1
+--convertToString (TmStream (TmVar n)) =
 convertToString (TmAdd (TmInt n1) (TmInt n2)) = [convertToString2 (TmAdd (TmInt n1) (TmInt n2))]
 convertToString (TmComma (TmStream e1) (TmStream e2)) = [(convertToString2 e1),(convertToString2 e2)]
 convertToString (TmComma e1 (TmInt n)) = [(convertToString2 e1) ++[show n]]
 convertToString (TmComma (TmStream e1) e2) = [(convertToString2 e1)] ++ (convertToString e1)
 convertToString (TmComma e1 (TmStream e2)) = (convertToString e1) ++ [(convertToString2 e2)]
 convertToString (TmComma e1 e2) = (convertToString e1) ++ (convertToString e2)
+--convertToString (TmStream s1 (TmVar n1)) = getValueBinding n1 env
 
 convertToString2 :: Expr -> [String]
 convertToString2 (TmInt n) = [(show n)]

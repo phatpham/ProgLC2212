@@ -7,13 +7,12 @@ $digit = 0-9
 -- digits 
 $alpha = [a-zA-Z]    
 -- alphabetic characters
-
+$comment = [$alpha$digit]
 
 tokens :-
 $white+       ; 
-  "#".*        ; 
+  "#".*        ;
   "\n"          ;
-
   Bool           { tok (\p s -> TokenTypeBool p)     }
   Int            { tok (\p s -> TokenTypeInt p)      }
   Stream         { tok (\p s -> TokenTypeStream p)   }
@@ -48,7 +47,10 @@ $white+       ;
   remove         { tok (\p s -> TokenRemove p)       }
   insert         { tok (\p s -> TokenInsert p)       }
   delete         { tok (\p s -> TokenDelete p)       }
-  $alpha [$alpha $digit \_ \’]*   { tok (\p s -> TokenVar p s) } 
+  zip            { tok (\p s -> TokenZip p)       }
+  $alpha [$alpha $digit \_ \’]*   { tok (\p s -> TokenVar p s) }
+  "\*" [$alpha]*          ;
+  "*/"           ;
 
 { 
 
@@ -94,7 +96,10 @@ data Token =
   TokenAdd AlexPosn              |
   TokenRemove AlexPosn           |
   TokenInsert AlexPosn           |
-  TokenDelete AlexPosn
+  TokenDelete AlexPosn           |
+  TokenZip AlexPosn              |
+  TokenCommentOpen AlexPosn      |
+  TokenCommentClose AlexPosn
   deriving (Eq,Show) 
 
 tokenPosn :: Token -> String
@@ -134,4 +139,7 @@ tokenPosn (TokenAdd (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenRemove (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenInsert (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenDelete (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenZip (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenCommentOpen (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenCommentClose (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 }

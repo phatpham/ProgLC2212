@@ -139,8 +139,7 @@ typeof (expr,env) = case expr of
 
     TmMap e1 e2 -> do
         te1 <- typeof (e1,env)
-        te2 <- typeof (e2, getEnv (e1,env))
-        return te2
+        return te1
 
     TmAddFunc x -> return TyInt
 
@@ -190,6 +189,18 @@ typeof (expr,env) = case expr of
         if te1 /= Just TyStream
         then throwError $ NotFound
         else return TyStream
+
+    TmZip x x2 -> do
+        let te1 = lookup1 x env
+        let te2 = lookup1 x2 env
+        if te1 /= Just TyStream
+        then throwError $ NotFound
+        else
+            if te2 /= Just TyStream
+            then throwError $ NotFound
+            else return TyStream
+
+  --  TmComment x -> return TyString
 
 -- Idk how this work, but it does (save the environment when it sees TmBreak)
 getEnv :: (Expr,TypeEnv) -> TypeEnv

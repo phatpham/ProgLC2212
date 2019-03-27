@@ -41,6 +41,10 @@ import Tokens
 	remove   { TokenRemove _}
 	insert   { TokenInsert _ }
 	delete   { TokenDelete _ }
+	zip      { TokenZip _  }
+	'\*'     { TokenCommentOpen _}
+    '*/'     { TokenCommentClose _}
+
 
 
 
@@ -58,6 +62,7 @@ import Tokens
 %nonassoc remove
 %nonassoc insert
 %nonassoc delete
+%nonassoc zip
 %left ';'
 %left '<'
 %right '='
@@ -90,14 +95,15 @@ Exp : int                                       { TmInt $1 }
 	| while '(' Exp ')' '{' Exp '}'             { TmWhile $3 $6 }
 	| '[' Exp ']'								 { TmStream $2 }
 	| Exp ';' Exp                               { TmBreak $1 $3 }
-	| Exp '.' map '(' Exp ')'                   { TmMap $1 $5 }
+	| Exp '.' map '(' var ')'                   { TmMap $1 $5 }
 	| '+' int                                   { TmAddFunc $2 }
-	| var '.' get '(' int ')'                   { TmGetElem $1 $5 }
+	| var '.' get '(' Exp ')'                   { TmGetElem $1 $5 }
 	| var '.' size '(' ')'                      { TmGetSize $1 }
     | var '.' add '(' Exp ')'                   { TmAddElem $1 $5 }
     | var '.' remove '(' Exp ')'                { TmRemoveElem $1 $5 }
     | var '.' insert '(' Exp ',' Exp  ')'        { TmInsertElem $1 $5 $7}
     | var '.' delete '(' Exp ')'                { TmDeleteElem $1 $5 }
+    | var '.' zip '(' var ')'                   { TmZip $1 $5 }
 
 Type : Bool            { TyBool } 
      | Int             { TyInt }
@@ -115,10 +121,10 @@ type Environment = [ (String,Expr) ]
 
 data Expr = TmInt Int | TmTrue | TmFalse | TmLessThan Expr Expr 
             | TmAdd Expr Expr | TmVar String | TmMulti Expr Expr | TmSubtract Expr Expr | TmDivide Expr Expr
-            | TmIf Expr Expr Expr | TmMap Expr Expr | TmAddFunc Int
-            | TmComma Expr Expr | TmStream Expr | TmGetElem String Int | TmGetSize String | TmAddElem String Expr
+            | TmIf Expr Expr Expr | TmMap Expr String | TmAddFunc Int
+            | TmComma Expr Expr | TmStream Expr | TmGetElem String Expr | TmGetSize String | TmAddElem String Expr
             | TmRemoveElem String Expr | TmInsertElem String Expr Expr | TmDeleteElem String Expr
-			| TmAssign Type String Expr | TmWhile Expr Expr
+			| TmAssign Type String Expr | TmWhile Expr Expr | TmZip String String
 			| TmEqualTo Expr Expr
 			| TmBreak Expr Expr
     deriving (Show,Eq, Ord)
