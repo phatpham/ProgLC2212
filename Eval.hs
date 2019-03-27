@@ -194,15 +194,12 @@ perfectEval programName = do r <- getContents
                              let eachLine = lines (r)
                              let ls = map (split ' ') eachLine
                              let stream = parseCalc (alexScanTokens (show (parseAll ls)))
-                             putStrLn(show stream)
                              r2 <- readFile programName
-                             putStrLn (show r2)
                              let parsedProg = parseCalc (alexScanTokens r2)
-                             putStrLn (show (parseAll (convertToString (fst (eval (parsedProg,[("stream",stream)]))))))
                              let typeCheck = (result (typeof (parsedProg,[("stream",TyStream)])))
                              if (typeCheck == "No type error was found")
                              --Evaluate if right type
-                             then writeFile "output.txt" (formattedPrint (parseAll (convertToString (fst (eval (parsedProg,[("stream",stream)]))))))
+                             then putStr (formattedPrint (parseAll (convertToString (fst (eval (parsedProg,[("stream",stream)]))))))
                              --then putStrLn (show (fst(eval (parsedProg,[("stream",stream)]))))
                              --Print error if not valid type
                              else putStrLn (typeCheck)

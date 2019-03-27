@@ -11,7 +11,7 @@ import Data.Char(toUpper)
 main :: IO ()
 main = do (fileName : _ ) <- getArgs
           check [fileName] 
-          perfectEval fileName
+          interpret fileName
 
 check :: [String] -> IO()
 check [] = error "Missing files"
