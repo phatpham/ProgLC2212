@@ -12,7 +12,6 @@ $comment = [$alpha$digit]
 tokens :-
 $white+       ; 
   "#".*        ;
-  "\r\n"          ;
   "\n"          ;
   Bool           { tok (\p s -> TokenTypeBool p)     }
   Int            { tok (\p s -> TokenTypeInt p)      }
@@ -49,9 +48,10 @@ $white+       ;
   insert         { tok (\p s -> TokenInsert p)       }
   delete         { tok (\p s -> TokenDelete p)       }
   zip            { tok (\p s -> TokenZip p)       }
+  getElem        { tok (\p s -> TokenGetElem p)       }
   $alpha [$alpha $digit \_ \’]*   { tok (\p s -> TokenVar p s) }
-  "\*" [$alpha]*          ;
-  "*/"           ;
+  "a" [$alpha]* "a"        ;
+
 
 { 
 
@@ -100,8 +100,9 @@ data Token =
   TokenDelete AlexPosn           |
   TokenZip AlexPosn              |
   TokenCommentOpen AlexPosn      |
-  TokenCommentClose AlexPosn
-  deriving (Eq,Show) 
+  TokenCommentClose AlexPosn     |
+  TokenGetElem AlexPosn
+  deriving (Eq,Show)
 
 tokenPosn :: Token -> String
 tokenPosn (TokenTypeBool (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
@@ -143,4 +144,6 @@ tokenPosn (TokenDelete (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenZip (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenCommentOpen (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenCommentClose (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenGetElem (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+
 }

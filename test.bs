@@ -1,1 +1,67 @@
-Stream x = [5]
+Stream x = [[input]];
+x.add(0);
+x.removeLast();
+x.print();
+
+1 1    0 0
+1 1 -> 1 1
+1 1    1 1
+
+for(line = 0)
+if line == 0 then print(0) countColums() else 
+Stream x = [[line]]
+x.add([1]elem from input)
+x.removeFirst();
+0 0
+
+printN = 
+while () {
+
+}
+
+0 (add 1)
+print 0, rmeove 0, add 1, print 1, remove 1, add 2, print 2, remove 2, add 3, print 3, remove 3, add 4, print 4
+
+read 1, calc fib =1+ 0 +0, print fib, read
+
+Stream x = [[1,2],[3,4]];
+for()
+	[i] = [i]*([i+1]*3); 
+
+x=0	
+while()	
+	Stream s = [[nextLine]] -> [[1,2]]
+	Int x = stream.head.get(0); -> [1,2]
+	Int y = stream.get(1); -> Exception
+	print(x+y*3)
+	x++
+
+	- Function that get the n-th inner list 
+	- Function count elems
+	- Print function 
+
+	
+	ex.
+Stream s = [[input]]
+while (s.size /= 0) {
+	Int x = stream.head.get(0)
+	Int y = stream.head.get(1)
+	s.remove(1)
+	print (x+y*3) 
+}
+
+Stream s = [[line]]
+
+while (lines < size) {
+	Int x = stream.head.get(lines)
+	Int y = stream.get(lines+1)
+	(x+y*3) 
+}	
+
+x = 0
+doc size = 0
+while(x < size -1)
+	Stream s = [[input]]
+	if(x == 0) then print 0 
+	else print s.get(1) x++
+	

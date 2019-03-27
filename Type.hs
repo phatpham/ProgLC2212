@@ -32,13 +32,9 @@ unparse1 _ = "Unknown"
 
 data TypeError = TypeMismatch Type Type | NotFound  deriving Eq
 
-instance Error TypeError where
-    noMsg = NotFound
-     
 instance Show TypeError where
     show (TypeMismatch a b) = "Type Mismatch: " ++ show a ++ " is not " ++ show b
     show (NotFound) = "Variable not found in type environment"
-
 
 typeof :: (Expr,TypeEnv) -> Either TypeError Type
 typeof (expr,env) = case expr of 
@@ -154,7 +150,7 @@ typeof (expr,env) = case expr of
            then throwError $ TypeMismatch te1 TyBool
            else return te2
 
-    TmGetElem x n -> do
+    TmGet x n -> do
          let te1 = lookup1 x env
          if te1 /= Just TyStream
          then throwError $ NotFound
@@ -184,9 +180,17 @@ typeof (expr,env) = case expr of
 
     TmInsertElem x n1 n2 -> do
         let te1 = lookup1 x env
+        te2 <- typeof(n1,env)
+        te3 <- typeof(n2,env)
         if te1 /= Just TyStream
         then throwError $ NotFound
-        else return TyStream
+        else
+            if te2 /= TyInt
+            then throwError $ TypeMismatch te2 TyInt
+            else
+                if te3 /= TyInt
+                then throwError $ TypeMismatch te3 TyInt
+                else return te3
 
     TmDeleteElem x n -> do
         let te1 = lookup1 x env
@@ -203,6 +207,21 @@ typeof (expr,env) = case expr of
             if te2 /= Just TyStream
             then throwError $ NotFound
             else return TyStream
+
+    TmGetElem x n1 n2 -> do
+        let te1 = lookup1 x env
+        te2 <- typeof(n1,env)
+        te3 <- typeof(n2,env)
+        if te1 /= Just TyStream
+        then throwError $ NotFound
+        else
+            if te2 /= TyInt
+            then throwError $ TypeMismatch te2 TyInt
+            else
+                if te3 /= TyInt
+                then throwError $ TypeMismatch te3 TyInt
+                else return te3
+
 
   --  TmComment x -> return TyString
 
