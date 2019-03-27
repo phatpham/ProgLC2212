@@ -12,6 +12,7 @@ $comment = [$alpha$digit]
 tokens :-
 $white+       ; 
   "#".*        ;
+  "\r\n"          ;
   "\n"          ;
   Bool           { tok (\p s -> TokenTypeBool p)     }
   Int            { tok (\p s -> TokenTypeInt p)      }

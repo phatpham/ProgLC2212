@@ -1,7 +1,4 @@
-Int x = 5; 
-while(x < 0) {
-	Int x = (x + 1); 
-	x 
-}; 
-stream.add([x])
-x
+Int x = 0; 
+stream.add([x]); 
+stream.delete(stream.size()-1);
+stream

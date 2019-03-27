@@ -1,4 +1,3 @@
-module Interpreter where
 import Tokens
 import Grammar
 import Eval
@@ -9,20 +8,20 @@ import System.IO
 import System.Directory
 import Data.Char(toUpper)
 
-main :: String -> String -> IO ()
-main fileName programName = do let args = [fileName,programName]
-                               check args
+main :: IO ()
+main = do (fileName : _ ) <- getArgs
+          check [fileName] 
+          perfectEval fileName
 
 check :: [String] -> IO()
 check [] = error "Missing files"
-check [f1,f2] = do ar1 <- doesFileExist f1
-                   ar2 <- doesFileExist f2
-                   interpret f1 ar1 f2 ar2
+check [f1] = do ar1 <- doesFileExist f1
+                interpret f1 
 check _ = error "Incorrect argument, Expected: 1\n Usage: Interpreter.hs"
 
-interpret :: String -> Bool -> String -> Bool -> IO ()
-interpret ar1 f1 ar2 f2 | f1 && f2 = catch (perfectEval ar1 ar2) (noParse ar1 ar2)
-                        | otherwise = error ("Source file doesn't exis")
+interpret :: FilePath -> IO ()
+interpret f1  = catch (perfectEval f1) (noParse f1 )
+                  
 
 {-
 perfectEval :: FilePath -> FilePath -> IO ()
@@ -60,11 +59,11 @@ main' = do (filename : _) <- getArgs
 
 
 
-noParse :: String -> String -> ErrorCall -> IO ()
-noParse ar1 ar2 e = do let err =  show e
-                       putStrLn("----------------")
-                       hPutStrLn stderr err
-                       putStrLn("----------------")
-                       main ar1 ar2
+noParse :: String -> ErrorCall -> IO ()
+noParse f1 e = do let err =  show e
+                  putStrLn("----------------")
+                  hPutStrLn stderr err
+                  putStrLn("----------------")
+                   
 
 

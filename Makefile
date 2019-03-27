@@ -1,25 +1,16 @@
-# 
-# Rules for compiling and linking the typechecker/evaluator
-#
-# Type
-#   make         to rebuild the executable files
-#   make clean   to remove all intermediate and temporary files
-#   
+OUTPUT_NAME = myinterpreter
+
 
 # Files that need to be generated from other files
 DEPEND += Tokens.hs Grammar.hs Eval.hs Type.hs
 
 # When "make" is invoked with no arguments, we build an executable 
 #  after building everything that it depends on
-all: $(DEPEND) Main 
+all: $(DEPEND) interpreter 
 
 # Build an executable for Toy interpreter
-Main: $(DEPEND) Interpreter.hs
-	ghc Interpreter.hs
-
-# Build an executable for interactive mode
-MyInterpreter: $(DEPEND) Main.hs
-	ghc Main.hs
+interpreter: $(DEPEND) Interpreter.hs
+	ghc -o $(OUTPUT_NAME) Interpreter.hs
 
 # Generate ML files from a parser definition file
 Grammar.hs : Grammar.y
@@ -36,5 +27,4 @@ Tokens.hs : Tokens.x
 # Clean up the directory
 clean::
 	rm -rf Tokens.hs Grammar.hs *.hi *.o *.info
-
 

@@ -69,7 +69,7 @@ eval (TmDivide e1 e2, env) = (eval ((TmDivide fstEval sndEval),env)) where fstEv
 -}
 eval ((TmWhile e1 e2),env) = if (fst (eval (e1,env)) == TmTrue)
                              then (eval ((TmWhile e1 e2),env'))
-                             else eval (e2,env)
+                             else (e2,env)
                                  where (e,env') = eval (e2,env)
 
 eval (TmIf e1 e2 e3 ,env) = if (fst (eval (e1,env)) == TmTrue) 
@@ -189,24 +189,23 @@ printStream x [] = error "Variable bindings not found"
 printStream x env = getValueBinding x env
 
 --Take filename, return file content
-perfectEval :: FilePath -> FilePath -> IO ()
-perfectEval fileName programName = do r <- readFile fileName
-                                      let eachLine = lines (r)
-                                      let ls = map (split ' ') eachLine
-                                      --putStrLn (show ls)
-                                      let stream = parseCalc (alexScanTokens (show (parseAll ls)))
-                                      putStrLn (show ls)
-                                      putStrLn (show stream)
-                                      r2 <- readFile programName
-                                      let parsedProg = parseCalc (alexScanTokens r2)
-                                      putStrLn (show parsedProg ++ "here")
-                                      let typeCheck = (result (typeof (parsedProg,[("stream",TyStream)])))
-                                      if (typeCheck == "No type error was found")
-                                      --Evaluate if right type
-                                      then writeFile "output.txt" (formattedPrint (parseAll (convertToString (fst (eval (parsedProg,[("stream",stream)]))))))
-                                      --then putStrLn (show (fst(eval (parsedProg,[("stream",stream)]))))
-                                      --Print error if not valid type
-                                      else putStrLn (typeCheck)
+perfectEval :: FilePath -> IO ()
+perfectEval programName = do r <- getContents
+                             let eachLine = lines (r)
+                             let ls = map (split ' ') eachLine
+                             let stream = parseCalc (alexScanTokens (show (parseAll ls)))
+                             putStrLn(show stream)
+                             r2 <- readFile programName
+                             putStrLn (show r2)
+                             let parsedProg = parseCalc (alexScanTokens r2)
+                             putStrLn (show (parseAll (convertToString (fst (eval (parsedProg,[("stream",stream)]))))))
+                             let typeCheck = (result (typeof (parsedProg,[("stream",TyStream)])))
+                             if (typeCheck == "No type error was found")
+                             --Evaluate if right type
+                             then writeFile "output.txt" (formattedPrint (parseAll (convertToString (fst (eval (parsedProg,[("stream",stream)]))))))
+                             --then putStrLn (show (fst(eval (parsedProg,[("stream",stream)]))))
+                             --Print error if not valid type
+                             else putStrLn (typeCheck)
 							
 
 split :: Eq a => a -> [a] -> [[a]]
@@ -295,4 +294,4 @@ convertToExpr ls = parseCalc (alexScanTokens (show ls))
 
 formattedPrint :: [[Int]] -> String
 formattedPrint [xs] = (unwords $ map (printf "%d") (xs))
-formattedPrint (xs:xss) = (unwords $ map (printf "%d") (xs)) ++ "\r\n" ++ formattedPrint (xss)
+formattedPrint (xs:xss) = (unwords $ map (printf "%d") (xs)) ++ "\n" ++ formattedPrint (xss)
