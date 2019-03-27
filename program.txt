@@ -1,0 +1,7 @@
+Int x = 5; 
+while(x < 0) {
+	Int x = (x + 1); 
+	x 
+}; 
+stream.add([x])
+x

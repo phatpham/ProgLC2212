@@ -7,15 +7,15 @@ $digit = 0-9
 -- digits 
 $alpha = [a-zA-Z]    
 -- alphabetic characters
-
+$comment = [$alpha$digit]
 
 tokens :-
 $white+       ; 
-  "#".*        ; 
+  "#".*        ;
   "\n"          ;
-
   Bool           { tok (\p s -> TokenTypeBool p)     }
   Int            { tok (\p s -> TokenTypeInt p)      }
+  Stream         { tok (\p s -> TokenTypeStream p)   }
   $digit+        { tok (\p s -> TokenInt p (read s)) }
   \;             { tok (\p s -> TokenBreak p)        }
   "=="           { tok (\p s -> TokenEqualTo p)      }
@@ -33,11 +33,24 @@ $white+       ;
   \/             { tok (\p s -> TokenDivide p)       }
   \(             { tok (\p s -> TokenLParen p)       }
   \)             { tok (\p s -> TokenRParen p)       }
-  \[             { tok (\p s -> TokenLList p)        }
+  \[             { tok (\p s -> TokenLStream p)      }
   \,             { tok (\p s -> TokenComma p)        }
-  \]             { tok (\p s -> TokenRList p)        }
-  $alpha [$alpha $digit \_ \’]*   { tok (\p s -> TokenVar p s) } 
-  
+  \]             { tok (\p s -> TokenRStream p)      }
+   map           { tok (\p s -> TokenMap p)          }
+  \.             { tok (\p s -> TokenApply p)        }
+  \{             { tok (\p s -> TokenLBracket p)     }
+  \}             { tok (\p s -> TokenRBracket p)     }
+  while          { tok (\p s -> TokenWhile p)        }
+  get            { tok (\p s -> TokenGet p)          }
+  size           { tok (\p s -> TokenSize p)         }
+  add            { tok (\p s -> TokenAdd p)          }
+  remove         { tok (\p s -> TokenRemove p)       }
+  insert         { tok (\p s -> TokenInsert p)       }
+  delete         { tok (\p s -> TokenDelete p)       }
+  zip            { tok (\p s -> TokenZip p)       }
+  $alpha [$alpha $digit \_ \’]*   { tok (\p s -> TokenVar p s) }
+  "\*" [$alpha]*          ;
+  "*/"           ;
 
 { 
 
@@ -48,6 +61,7 @@ tok f p s = f p s
 data Token = 
   TokenTypeBool AlexPosn         | 
   TokenTypeInt  AlexPosn         |
+  TokenTypeStream AlexPosn       |
   TokenTypeFractional AlexPosn   |
   TokenInt AlexPosn Int          |
   TokenTrue AlexPosn             |
@@ -67,16 +81,31 @@ data Token =
   TokenDivide AlexPosn           |
   TokenEqualTo AlexPosn          |
   TokenComma AlexPosn            |
-  TokenLList AlexPosn            |
-  TokenRList AlexPosn            |
+  TokenLStream AlexPosn          |
+  TokenRStream AlexPosn          |
   TokenList AlexPosn             |
   TokenAssign AlexPosn           |
-  TokenBreak AlexPosn            
+  TokenBreak AlexPosn            |
+  TokenMap AlexPosn              |
+  TokenApply AlexPosn            |
+  TokenLBracket AlexPosn         |
+  TokenRBracket AlexPosn         |
+  TokenWhile AlexPosn            |
+  TokenGet AlexPosn              |
+  TokenSize AlexPosn             |
+  TokenAdd AlexPosn              |
+  TokenRemove AlexPosn           |
+  TokenInsert AlexPosn           |
+  TokenDelete AlexPosn           |
+  TokenZip AlexPosn              |
+  TokenCommentOpen AlexPosn      |
+  TokenCommentClose AlexPosn
   deriving (Eq,Show) 
 
 tokenPosn :: Token -> String
 tokenPosn (TokenTypeBool (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenTypeInt  (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenTypeStream (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenInt  (AlexPn a l c) _) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenTrue  (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenFalse  (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
@@ -93,11 +122,24 @@ tokenPosn (TokenLParen (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenRParen (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenVar (AlexPn a l c) _) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenComma (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenRList (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenLList (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenRStream (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenLStream (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenList (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenEqualTo (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenAssign (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenBreak (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
-
+tokenPosn (TokenMap (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenApply (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenLBracket (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenRBracket (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenWhile (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenGet (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenSize (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenAdd (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenRemove (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenInsert (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenDelete (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenZip (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenCommentOpen (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenCommentClose (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 }

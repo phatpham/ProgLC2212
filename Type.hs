@@ -20,7 +20,7 @@ lookup1 x env | x == (fst (head env)) =  Just (snd (head env))
 
 addBinding :: String -> Type -> TypeEnv -> TypeEnv
 addBinding x typ [] = [(x,typ)]
-addBinding x typ ((y,e):env) | (x,typ) == (y,e) = env 
+addBinding x typ ((y,e):env) | x == y = (y,e):env
                              | otherwise = (y,e):(addBinding x typ env)
 
 {-
@@ -32,14 +32,19 @@ unparse1 _ = "Unknown"
 
 data TypeError = TypeMismatch Type Type | NotFound  deriving Eq
 
+instance Error TypeError where
+    noMsg = NotFound
+     
 instance Show TypeError where
     show (TypeMismatch a b) = "Type Mismatch: " ++ show a ++ " is not " ++ show b
     show (NotFound) = "Variable not found in type environment"
+
 
 typeof :: (Expr,TypeEnv) -> Either TypeError Type
 typeof (expr,env) = case expr of 
     TmInt x -> return TyInt
     TmTrue -> return TyBool
+    TmStream x -> return TyStream
     TmFalse -> return TyBool
     TmVar x -> do
         let type1 = lookup1 x env
@@ -48,7 +53,11 @@ typeof (expr,env) = case expr of
         else 
             if (type1 == Just TyBool)
             then return TyBool
-            else throwError $ NotFound
+            else
+                if (type1 == Just TyStream)
+                then return TyStream
+                else throwError $ NotFound
+
     TmLessThan e1 e2 -> do
         te1 <- typeof (e1,env)
         te2 <- typeof (e2,env)
@@ -132,6 +141,71 @@ typeof (expr,env) = case expr of
     TmAssign t x e -> do
         return t
 
+    TmMap e1 e2 -> do
+        te1 <- typeof (e1,env)
+        return te1
+
+    TmAddFunc x -> return TyInt
+
+    TmWhile e1 e2 -> do
+           te1 <- typeof (e1,env)
+           te2 <- typeof (e2,env)
+           if te1 /= TyBool
+           then throwError $ TypeMismatch te1 TyBool
+           else return te2
+
+    TmGetElem x n -> do
+         let te1 = lookup1 x env
+         if te1 /= Just TyStream
+         then throwError $ NotFound
+         else return TyStream
+
+    TmRemoveElem x n -> do
+         let te1 = lookup1 x env
+         if te1 /= Just TyStream
+         then throwError $ NotFound
+         else return TyStream
+
+    TmGetSize x -> do
+        let te1 = lookup1 x env
+        if te1 /= Just TyStream
+        then throwError $ NotFound
+        else return TyStream
+
+    TmAddElem x e -> do
+        let te1 = lookup1 x env
+        te2 <- typeof(e,env)
+        if te1 /= Just TyStream
+        then throwError $ NotFound
+        else
+            if te2 /= TyStream
+            then throwError $ TypeMismatch te2 TyStream
+            else return te2
+
+    TmInsertElem x n1 n2 -> do
+        let te1 = lookup1 x env
+        if te1 /= Just TyStream
+        then throwError $ NotFound
+        else return TyStream
+
+    TmDeleteElem x n -> do
+        let te1 = lookup1 x env
+        if te1 /= Just TyStream
+        then throwError $ NotFound
+        else return TyStream
+
+    TmZip x x2 -> do
+        let te1 = lookup1 x env
+        let te2 = lookup1 x2 env
+        if te1 /= Just TyStream
+        then throwError $ NotFound
+        else
+            if te2 /= Just TyStream
+            then throwError $ NotFound
+            else return TyStream
+
+  --  TmComment x -> return TyString
+
 -- Idk how this work, but it does (save the environment when it sees TmBreak)
 getEnv :: (Expr,TypeEnv) -> TypeEnv
 getEnv ((TmAssign t x e),env) = (addBinding x t env)
@@ -140,7 +214,7 @@ getEnv ((TmBreak e1 e2),env) = getEnv (e2,getEnv(e1,env))
 getEnv (_,env) = env
 
 
-result :: Either TypeError Type -> String 
+result :: Either TypeError Type -> String
 result (Left e) = show e
 result (Right e) = "No type error was found"
 

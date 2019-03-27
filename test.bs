@@ -1,2 +1,1 @@
-Int x = 5;
-If (x == 5) then true else false;
+Stream x = [5]
