@@ -1,0 +1,19 @@
+Int lines = 0;
+Int sum = 0;
+Stream newStream = [[100]];
+while (lines < stream.size()) {
+	if (lines == 0)
+	then (Int sum = stream.getElem(0,lines); newStream.add([sum]); Int lines = (lines + 1))
+	else (
+		if (lines == 1)
+                then (  Int sum = (stream.getElem(0,lines) + newStream.getElem(0,(lines)));
+			newStream.add([sum]);
+			Int lines = (lines + 1)
+		)
+                else (
+			Int sum = (stream.getElem(0,lines) + newStream.getElem(0,(lines)) + newStream.getElem(0,(lines - 1)));
+			newStream.add([sum]);
+			Int lines = (lines + 1)
+		))		
+	};
+newStream.delete(0)

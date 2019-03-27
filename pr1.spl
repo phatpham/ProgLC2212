@@ -1,0 +1,3 @@
+Stream newStream = [[0]]; 
+newStream.add([stream]); 
+newStream.delete(stream.size())

@@ -35,10 +35,10 @@ data TypeError = TypeMismatch Type Type | NotFound  deriving Eq
 instance Error TypeError where
     noMsg = NotFound
      
+
 instance Show TypeError where
     show (TypeMismatch a b) = "Type Mismatch: " ++ show a ++ " is not " ++ show b
     show (NotFound) = "Variable not found in type environment"
-
 
 typeof :: (Expr,TypeEnv) -> Either TypeError Type
 typeof (expr,env) = case expr of 
@@ -120,14 +120,9 @@ typeof (expr,env) = case expr of
 
     TmIf e1 e2 e3 -> do
         te1 <- typeof (e1,env)
-        te2 <- typeof (e2,env)
-        te3 <- typeof (e3,env)
         if te1 /= TyBool
         then throwError $ TypeMismatch te1 TyBool
-        else
-            if te2 /= te3
-            then throwError $ TypeMismatch te2 TyBool
-            else return te3
+        else return TyBool
 
     TmBreak (TmAssign t x e) e2 -> do 
         te2 <- typeof(e2, addBinding x t env) 
@@ -154,7 +149,7 @@ typeof (expr,env) = case expr of
            then throwError $ TypeMismatch te1 TyBool
            else return te2
 
-    TmGetElem x n -> do
+    TmGet x n -> do
          let te1 = lookup1 x env
          if te1 /= Just TyStream
          then throwError $ NotFound
@@ -170,7 +165,7 @@ typeof (expr,env) = case expr of
         let te1 = lookup1 x env
         if te1 /= Just TyStream
         then throwError $ NotFound
-        else return TyStream
+        else return TyInt
 
     TmAddElem x e -> do
         let te1 = lookup1 x env
@@ -184,9 +179,17 @@ typeof (expr,env) = case expr of
 
     TmInsertElem x n1 n2 -> do
         let te1 = lookup1 x env
+        te2 <- typeof(n1,env)
+        te3 <- typeof(n2,env)
         if te1 /= Just TyStream
         then throwError $ NotFound
-        else return TyStream
+        else
+            if te2 /= TyInt
+            then throwError $ TypeMismatch te2 TyInt
+            else
+                if te3 /= TyInt
+                then throwError $ TypeMismatch te3 TyInt
+                else return te3
 
     TmDeleteElem x n -> do
         let te1 = lookup1 x env
@@ -203,6 +206,21 @@ typeof (expr,env) = case expr of
             if te2 /= Just TyStream
             then throwError $ NotFound
             else return TyStream
+
+    TmGetElem x n1 n2 -> do
+        let te1 = lookup1 x env
+        te2 <- typeof(n1,env)
+        te3 <- typeof(n2,env)
+        if te1 /= Just TyStream
+        then throwError $ NotFound
+        else
+            if te2 /= TyInt
+            then throwError $ TypeMismatch te2 TyInt
+            else
+                if te3 /= TyInt
+                then throwError $ TypeMismatch te3 TyInt
+                else return te3
+
 
   --  TmComment x -> return TyString
 
