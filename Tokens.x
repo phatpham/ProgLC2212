@@ -36,7 +36,6 @@ $white+       ;
   \[             { tok (\p s -> TokenLStream p)      }
   \,             { tok (\p s -> TokenComma p)        }
   \]             { tok (\p s -> TokenRStream p)      }
-   map           { tok (\p s -> TokenMap p)          }
   \.             { tok (\p s -> TokenApply p)        }
   \{             { tok (\p s -> TokenLBracket p)     }
   \}             { tok (\p s -> TokenRBracket p)     }
@@ -50,7 +49,7 @@ $white+       ;
   zip            { tok (\p s -> TokenZip p)       }
   getElem        { tok (\p s -> TokenGetElem p)       }
   $alpha [$alpha $digit \_ \’]*   { tok (\p s -> TokenVar p s) }
-  "a" [$alpha]* "a"        ;
+
 
 
 { 
@@ -87,7 +86,6 @@ data Token =
   TokenList AlexPosn             |
   TokenAssign AlexPosn           |
   TokenBreak AlexPosn            |
-  TokenMap AlexPosn              |
   TokenApply AlexPosn            |
   TokenLBracket AlexPosn         |
   TokenRBracket AlexPosn         |
@@ -130,7 +128,6 @@ tokenPosn (TokenList (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenEqualTo (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenAssign (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenBreak (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenMap (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenApply (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenLBracket (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenRBracket (AlexPn a l c)) = show(l) ++ ":" ++ show(c)

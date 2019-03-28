@@ -61,12 +61,8 @@ eval (TmMulti e1 e2, env) = (eval ((TmMulti fstEval sndEval),env)) where fstEval
 eval (TmSubtract (TmInt n1) (TmInt n2), env) = (TmInt (n1-n2),env)
 eval (TmSubtract e1 e2, env) = (eval ((TmSubtract fstEval sndEval),env)) where fstEval = fst (eval (e1,env))
                                                                                sndEval = fst (eval (e2,env))
-{-
-eval (TmDivide (TmInt n1) (TmInt n2), env) = (TmInt (n1 / n2),env)
-eval (TmDivide e1 e2, env) = (eval ((TmDivide fstEval sndEval),env)) where fstEval = fst (eval (e1,env))
-                                                                           sndEval = fst (eval (e2,env))
 
--}
+
 eval ((TmWhile e1 e2),env) = if (fst (eval (e1,env)) == TmTrue)
                              then (eval ((TmWhile e1 e2),env'))
                              else (e2,env)
@@ -78,17 +74,6 @@ eval (TmIf e1 e2 e3 ,env) = if (fst (eval (e1,env)) == TmTrue)
 
 eval ((TmBreak e1 e2),env) = (eval (e2,env')) where (e,env') = eval (e1,env) 
 
-{-
-eval ((TmMap (TmStream e1) n),env) = let ls = convertStream e1
-                                         mapedStream = myMap ls n
-                                      in (parseCalc(alexScanTokens (show mapedStream)),env)
-
-myMap :: [[Int]] -> String -> [[Int]]
-myMap [[]] _ = [[]]
-myMap (x:xs) n = case n of
-                    "++" -> map (+1) x: myMap xs n
-
--}
 
 
 eval ((TmGet x (TmVar n)), env) = let i = parseAll (convertToString e')
@@ -212,7 +197,7 @@ perfectEval programName = do r <- getContents
                              then putStr (formattedPrint (parseAll (convertToString (fst (eval (parsedProg,[("stream",stream)]))))))
                              --then putStrLn (show (fst(eval (parsedProg,[("stream",stream)]))))
                              --Print error if not valid type
-                             else putStrLn (typeCheck)
+                             else hPutStrLn stderr (error typeCheck)
 
 
 split :: Eq a => a -> [a] -> [[a]]
@@ -282,14 +267,7 @@ convertToString2 (TmInt n) = [(show n)]
 convertToString2 (TmComma e1 e2) = (convertToString2 e1) ++ (convertToString2 e2)
 convertToString2 (TmAdd (TmInt n1) (TmInt n2)) = [(show (n1+n2))]
 
-{-
-convertStringToInt :: [[String]] -> [[Int]]
-convertStringToInt [[]] = []
-convertStringToInt (x:xs)
- | length xs > 0 = readInt x:convertStringToInt xs
- | otherwise = readInt x:[]
 
--}
 
 -- Converts the string input to Int values
 readInt :: [String] -> [Int]
