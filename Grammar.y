@@ -42,10 +42,8 @@ import Tokens
     delete   { TokenDelete _ }
     zip      { TokenZip _  }
     getElem  { TokenGetElem _ }
-
-
-
-
+    '\*'     { TokenCommentOpen _}
+    '*/'     { TokenCommentClose _}
 
 %nonassoc if
 %nonassoc then
@@ -102,6 +100,7 @@ Exp : int                                       { TmInt $1 }
     | var '.' delete '(' Exp ')'                { TmDeleteElem $1 $5 }
     | var '.' zip '(' var ')'                   { TmZip $1 $5 }
     | var '.' getElem '(' Exp ',' Exp ')'       { TmGetElem $1 $5 $7 }
+    | '\*' var '*/'                             { TmComment $2}
 
 Type : Bool            { TyBool } 
      | Int             { TyInt }
@@ -127,7 +126,8 @@ data Expr = TmInt Int | TmTrue | TmFalse | TmLessThan Expr Expr
             | TmRemoveElem String Expr | TmInsertElem String Expr Expr | TmDeleteElem String Expr
 			| TmAssign Type String Expr | TmWhile Expr Expr | TmZip String String | TmGetElem String Expr Expr
 			| TmEqualTo Expr Expr
-			| TmBreak Expr Expr 
+			| TmBreak Expr Expr
+			| TmComment String
     deriving (Show,Eq, Ord)
 
 } 

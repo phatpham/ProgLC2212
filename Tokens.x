@@ -49,7 +49,8 @@ $white+       ;
   zip            { tok (\p s -> TokenZip p)       }
   getElem        { tok (\p s -> TokenGetElem p)       }
   $alpha [$alpha $digit \_ \’]*   { tok (\p s -> TokenVar p s) }
-
+  "\*"           { tok (\p s -> TokenCommentOpen p)       }
+  "*/"           { tok (\p s -> TokenCommentClose p)     }
 
 
 { 

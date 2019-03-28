@@ -220,7 +220,7 @@ typeof (expr,env) = case expr of
                 else return te3
 
 
-  --  TmComment x -> return TyString
+    TmComment x -> return TyString
 
 -- Idk how this work, but it does (save the environment when it sees TmBreak)
 getEnv :: (Expr,TypeEnv) -> TypeEnv

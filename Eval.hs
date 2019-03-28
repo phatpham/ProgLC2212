@@ -114,25 +114,6 @@ eval ((TmDeleteElem x n), env) = let i = parseAll (convertToString e')
                                  in (parseCalc(alexScanTokens (show (deleteN (parseExpr(fst(eval (n,env)))) i))),update env x $(parseCalc(alexScanTokens (show (deleteN (parseExpr(fst(eval (n,env)))) i)))))
                                    where (e',env') = getValueBinding x env
 
-eval ((TmInsertElem x n listNumber), env) = let i = parseAll (convertToString e')
-                                                var = parseExpr(fst(eval(n,env)))
-                                                lsNumber = parseExpr(fst(eval(listNumber,env)))
-                                                newLs = (var : (i !! lsNumber))
-                                            in (parseCalc(alexScanTokens (show (newLs : (deleteN lsNumber i)))),update env x $(parseCalc(alexScanTokens (show (newLs : (deleteN lsNumber i))))))
-                                                where (e',env') = getValueBinding x env
-
-
-
-{-
-eval ((TmInsertElem x n listNumber), env) = let i = parseAll (convertToString e')
-                                               -- ls = (parseExpr n):(i !! (parseExpr (fst(eval (listNumber,env)))))
-                                                ls = (parseExpr n):(take (parseExpr (fst(eval (listNumber,env)))) i):( drop ((parseExpr (fst(eval (listNumber,env)))) + 1) i)
-                                                --take n xs ++ [newElement] ++ drop (n + 1) xs
-                                            in (parseCalc(alexScanTokens (show ls)),update env x $(parseCalc(alexScanTokens (show ls))))
-                                                where (e',env') = getValueBinding x env
-
--}
-
 eval ((TmZip x x1),env) = let i = parseAll (convertToString e')
                               i2 = parseAll (convertToString (fst(e2')))
                          in (parseCalc(alexScanTokens (show (zipStreams i i2))), update env x $ (parseCalc (alexScanTokens (show(zipStreams i i2)))))
@@ -145,10 +126,9 @@ eval ((TmGetElem x e1 listNumber), env) = let i = parseAll (convertToString e')
                                               elem = (i !! n1) !! n
                                           in (parseCalc (alexScanTokens (show (elem))),env)
                                             where (e', env') = getValueBinding x env
-{-
+
 
 eval ((TmComment s),env) = ((TmComment s),env)
--}
 
 parseExpr :: Expr -> Int
 parseExpr (TmInt n) =  n
@@ -176,7 +156,7 @@ printEval ((TmStream n),env) = show (parseAll(convertToString n))
 printEval ((TmTrue),env) = show "True"
 printEval ((TmFalse),env) = show "False"
 printEval ((TmVar x),env) = show (fst(getValueBinding x env))
---printEval ((TmComment x),env) = show x
+printEval ((TmComment x),env) = show x
 printEval s = show s
 
 printStream :: String -> Environment -> State
