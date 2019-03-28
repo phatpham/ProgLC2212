@@ -134,13 +134,11 @@ typeof (expr,env) = case expr of
         return te2
     
     TmAssign t x e -> do
-        return t
+        te <-typeof(e,env)
+        if te /= t 
+        then throwError $ TypeMismatch te t
+        else return t
 
-    TmMap e1 e2 -> do
-        te1 <- typeof (e1,env)
-        return te1
-
-    TmAddFunc x -> return TyInt
 
     TmWhile e1 e2 -> do
            te1 <- typeof (e1,env)
